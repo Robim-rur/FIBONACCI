@@ -166,11 +166,10 @@ ATIVOS = [
     "INTC34.SA",
     "JPMC34.SA",
     "ORCL34.SA"
-
 ]
 
 # =========================================================
-# INDICADORES
+# EMA
 # =========================================================
 
 def ema(series, period):
@@ -180,6 +179,9 @@ def ema(series, period):
         adjust=False
     ).mean()
 
+# =========================================================
+# ESTOCÁSTICO
+# =========================================================
 
 def stochastic(df, period=14):
 
@@ -199,6 +201,9 @@ def stochastic(df, period=14):
 
     return k, d
 
+# =========================================================
+# DMI / ADX
+# =========================================================
 
 def dmi(df, period=14):
 
@@ -251,7 +256,6 @@ def dmi(df, period=14):
 
     return plus_di, minus_di, adx
 
-
 # =========================================================
 # FIBONACCI
 # =========================================================
@@ -273,7 +277,6 @@ def calcular_fibs(df):
     fib_618 = topo - (diff * 0.618)
 
     return fib_382, fib_50, fib_618
-
 
 # =========================================================
 # MELHOR FIB HISTÓRICA
@@ -319,29 +322,17 @@ def melhor_fib_historica(df):
             futuro["High"].max() - preco
         ) / preco
 
-        # ============================================
-        # FIB 38.2
-        # ============================================
-
         if abs(preco - fib_382) / fib_382 <= 0.01:
 
             resultados["38.2"].append(
                 ganho_max >= 0.05
             )
 
-        # ============================================
-        # FIB 50
-        # ============================================
-
         if abs(preco - fib_50) / fib_50 <= 0.01:
 
             resultados["50"].append(
                 ganho_max >= 0.05
             )
-
-        # ============================================
-        # FIB 61.8
-        # ============================================
 
         if abs(preco - fib_618) / fib_618 <= 0.01:
 
@@ -377,120 +368,169 @@ def melhor_fib_historica(df):
 
     return melhor_fib, probabilidades
 
-
 # =========================================================
-# PROBABILIDADE DE CONTINUAR CORREÇÃO
+# FIB ATUAL
 # =========================================================
 
-def chance_continuar_correcao(
+def identificar_fib_atual(
     close,
     fib_382,
     fib_50,
-    fib_618,
+    fib_618
+):
+
+    if close >= fib_382:
+
+        return "38.2"
+
+    elif close >= fib_50:
+
+        return "50"
+
+    elif close >= fib_618:
+
+        return "61.8"
+
+    else:
+
+        return "ABAIXO 61.8"
+
+# =========================================================
+# CHANCE REVERSÃO
+# =========================================================
+
+def chance_reversao(
+    close,
+    fib_atual,
+    melhor_fib,
     hoje
 ):
 
     score = 0
 
     # ============================================
-    # PREÇO AINDA LONGE DA 61.8
+    # FIBONACCI
     # ============================================
 
-    if close > fib_50:
+    if fib_atual == melhor_fib:
+
+        score += 35
+
+    elif (
+        fib_atual == "50"
+        and
+        melhor_fib == "61.8"
+    ):
+
+        score += 15
+
+    elif (
+        fib_atual == "38.2"
+        and
+        melhor_fib == "50"
+    ):
+
+        score += 15
+
+    # ============================================
+    # ESTOCÁSTICO
+    # ============================================
+
+    if hoje["K"] > hoje["D"]:
+
+        score += 20
+
+    # ============================================
+    # DMI
+    # ============================================
+
+    if hoje["DI+"] > hoje["DI-"]:
+
+        score += 20
+
+    # ============================================
+    # ADX
+    # ============================================
+
+    if hoje["ADX"] > 18:
+
+        score += 15
+
+    # ============================================
+    # EMA69
+    # ============================================
+
+    if close > hoje["EMA69"]:
+
+        score += 10
+
+    return min(score, 95)
+
+# =========================================================
+# CONTINUAÇÃO CORREÇÃO
+# =========================================================
+
+def chance_continuacao(
+    fib_atual,
+    melhor_fib,
+    hoje
+):
+
+    score = 0
+
+    # ============================================
+    # FIBONACCI
+    # ============================================
+
+    if (
+        fib_atual == "38.2"
+        and
+        melhor_fib == "61.8"
+    ):
+
+        score += 40
+
+    elif (
+        fib_atual == "50"
+        and
+        melhor_fib == "61.8"
+    ):
 
         score += 30
 
+    elif (
+        fib_atual == "38.2"
+        and
+        melhor_fib == "50"
+    ):
+
+        score += 25
+
     # ============================================
-    # ESTOCÁSTICO AINDA CAINDO
+    # ESTOCÁSTICO
     # ============================================
 
     if hoje["K"] < hoje["D"]:
 
-        score += 25
+        score += 20
 
     # ============================================
-    # DMI VENDEDOR
+    # DMI
     # ============================================
 
     if hoje["DI-"] > hoje["DI+"]:
 
-        score += 25
+        score += 20
 
     # ============================================
-    # ADX FORTE
+    # ADX
     # ============================================
 
     if hoje["ADX"] > 20:
 
         score += 10
 
-    # ============================================
-    # DISTÂNCIA DA 61.8
-    # ============================================
-
-    dist_618 = abs(close - fib_618) / close
-
-    if dist_618 > 0.03:
-
-        score += 10
-
     return min(score, 95)
-
-
-# =========================================================
-# CHANCE DE REVERSÃO AGORA
-# =========================================================
-
-def chance_reversao_agora(
-    close,
-    fib_382,
-    fib_50,
-    fib_618,
-    hoje
-):
-
-    score = 0
-
-    # ============================================
-    # PREÇO PRÓXIMO DA 61.8
-    # ============================================
-
-    dist = abs(close - fib_618) / close
-
-    if dist <= 0.015:
-
-        score += 35
-
-    elif dist <= 0.03:
-
-        score += 20
-
-    # ============================================
-    # ESTOCÁSTICO COMPRADOR
-    # ============================================
-
-    if hoje["K"] > hoje["D"]:
-
-        score += 25
-
-    # ============================================
-    # DMI COMPRADOR
-    # ============================================
-
-    if hoje["DI+"] > hoje["DI-"]:
-
-        score += 25
-
-    # ============================================
-    # ADX
-    # ============================================
-
-    if hoje["ADX"] > 16:
-
-        score += 15
-
-    return min(score, 95)
-
 
 # =========================================================
 # CLASSIFICAÇÃO
@@ -498,25 +538,45 @@ def chance_reversao_agora(
 
 def classificar(
     reversao,
-    continuacao
+    continuacao,
+    fib_atual
 ):
 
-    if reversao >= 70:
+    # ============================================
+    # ENTRADA IDEAL
+    # ============================================
+
+    if (
+        reversao >= 70
+        and
+        fib_atual in ["50", "61.8"]
+    ):
 
         return "🔥 ENTRADA IDEAL"
 
-    elif reversao >= 55:
+    # ============================================
+    # ENTRADA ANTECIPADA
+    # ============================================
+
+    elif (
+        reversao >= 55
+        and
+        fib_atual == "38.2"
+    ):
 
         return "🟢 ENTRADA ANTECIPADA"
 
-    elif continuacao >= 65:
+    # ============================================
+    # ESPERAR
+    # ============================================
+
+    elif continuacao >= 55:
 
         return "⏳ ESPERAR CORREÇÃO"
 
     else:
 
         return "🟡 OBSERVAÇÃO"
-
 
 # =========================================================
 # ANÁLISE
@@ -544,7 +604,9 @@ def analisar_ativo(ticker):
 
         if isinstance(df.columns, pd.MultiIndex):
 
-            df.columns = df.columns.get_level_values(0)
+            df.columns = (
+                df.columns.get_level_values(0)
+            )
 
         # ============================================
         # LIMPEZA
@@ -591,7 +653,9 @@ def analisar_ativo(ticker):
         # MELHOR FIB
         # ============================================
 
-        melhor_fib, probs = melhor_fib_historica(df)
+        melhor_fib, probs = (
+            melhor_fib_historica(df)
+        )
 
         # ============================================
         # PREÇO
@@ -602,7 +666,39 @@ def analisar_ativo(ticker):
         close = float(hoje["Close"])
 
         # ============================================
-        # SCORE CLÁSSICO
+        # FIB ATUAL
+        # ============================================
+
+        fib_atual = identificar_fib_atual(
+            close,
+            fib_382,
+            fib_50,
+            fib_618
+        )
+
+        # ============================================
+        # REVERSÃO
+        # ============================================
+
+        reversao = chance_reversao(
+            close,
+            fib_atual,
+            melhor_fib,
+            hoje
+        )
+
+        # ============================================
+        # CONTINUAÇÃO
+        # ============================================
+
+        continuacao = chance_continuacao(
+            fib_atual,
+            melhor_fib,
+            hoje
+        )
+
+        # ============================================
+        # SCORE
         # ============================================
 
         score = 0
@@ -613,38 +709,14 @@ def analisar_ativo(ticker):
         if hoje["DI+"] > hoje["DI-"]:
             score += 1
 
-        if hoje["ADX"] > 16:
+        if hoje["ADX"] > 18:
             score += 1
 
         if hoje["K"] > hoje["D"]:
             score += 1
 
-        if (
-            close <= fib_382
-            and
-            close >= fib_618
-        ):
+        if fib_atual in ["50", "61.8"]:
             score += 1
-
-        # ============================================
-        # PROBABILIDADES
-        # ============================================
-
-        continuacao = chance_continuar_correcao(
-            close,
-            fib_382,
-            fib_50,
-            fib_618,
-            hoje
-        )
-
-        reversao = chance_reversao_agora(
-            close,
-            fib_382,
-            fib_50,
-            fib_618,
-            hoje
-        )
 
         # ============================================
         # STATUS
@@ -652,26 +724,9 @@ def analisar_ativo(ticker):
 
         status = classificar(
             reversao,
-            continuacao
+            continuacao,
+            fib_atual
         )
-
-        # ============================================
-        # FIB ATUAL
-        # ============================================
-
-        fib_atual = "-"
-
-        if close >= fib_382:
-
-            fib_atual = "38.2"
-
-        elif close >= fib_50:
-
-            fib_atual = "50"
-
-        elif close >= fib_618:
-
-            fib_atual = "61.8"
 
         # ============================================
         # RESULTADO
@@ -695,7 +750,7 @@ def analisar_ativo(ticker):
 
             "Prob 61.8": probs["61.8"],
 
-            "Chance Reversão Agora %": reversao,
+            "Chance Reversão %": reversao,
 
             "Chance Continuar Correção %": continuacao,
 
@@ -723,7 +778,6 @@ def analisar_ativo(ticker):
 
         return None
 
-
 # =========================================================
 # APP
 # =========================================================
@@ -734,13 +788,14 @@ st.title(
 
 st.markdown("""
 
-### O app agora calcula:
+### O scanner identifica:
 
+- Região atual do pullback;
 - Melhor Fibonacci histórica;
-- Chance de reversão AGORA;
+- Chance de reversão;
 - Chance de continuar corrigindo;
-- Região atual da correção;
-- Probabilidades individuais por Fibonacci.
+- Pullbacks maduros;
+- Entradas antecipadas.
 
 """)
 
@@ -768,9 +823,9 @@ if st.button("ESCANEAR MERCADO"):
             (i + 1) / total
         )
 
-    # ================================================
+    # =====================================================
     # RESULTADOS
-    # ================================================
+    # =====================================================
 
     if resultados:
 
@@ -792,7 +847,7 @@ if st.button("ESCANEAR MERCADO"):
         df_resultados = df_resultados.sort_values(
             by=[
                 "Ordem",
-                "Chance Reversão Agora %",
+                "Chance Reversão %",
                 "Score"
             ],
             ascending=[True, False, False]
@@ -803,15 +858,28 @@ if st.button("ESCANEAR MERCADO"):
             inplace=True
         )
 
+        mostrar_observacao = st.checkbox(
+            "Mostrar observação",
+            value=True
+        )
+
+        if not mostrar_observacao:
+
+            df_resultados = df_resultados[
+                df_resultados["Status"]
+                !=
+                "🟡 OBSERVAÇÃO"
+            ]
+
         st.dataframe(
             df_resultados,
             use_container_width=True,
             height=750
         )
 
-        # ============================================
+        # =================================================
         # RESUMO
-        # ============================================
+        # =================================================
 
         ideal = len(
             df_resultados[
