@@ -10,7 +10,7 @@ import yfinance as yf
 # =========================================================
 
 st.set_page_config(
-    page_title="Scanner Fibonacci Tendencial PRO",
+    page_title="Scanner Fibonacci Probabilístico PRO",
     layout="wide"
 )
 
@@ -20,152 +20,23 @@ st.set_page_config(
 
 ATIVOS = [
 
-    # =====================================================
-    # AÇÕES
-    # =====================================================
+    "PETR4.SA","VALE3.SA","BBAS3.SA","ITUB4.SA","BBDC4.SA",
+    "WEGE3.SA","PRIO3.SA","RENT3.SA","ELET3.SA","ELET6.SA",
+    "CPLE6.SA","CMIG4.SA","TAEE11.SA","EGIE3.SA","VIVT3.SA",
+    "TIMS3.SA","ABEV3.SA","RADL3.SA","SUZB3.SA","GGBR4.SA",
+    "GOAU4.SA","USIM5.SA","CSNA3.SA","RAIL3.SA","SBSP3.SA",
+    "EQTL3.SA","HYPE3.SA","MULT3.SA","LREN3.SA","ARZZ3.SA",
+    "TOTS3.SA","EMBR3.SA","JBSS3.SA","BEEF3.SA","MRFG3.SA",
+    "BRFS3.SA","SLCE3.SA","SMTO3.SA","B3SA3.SA","BBSE3.SA",
+    "BPAC11.SA","SANB11.SA","ITSA4.SA",
 
-    "PETR4.SA",
-    "VALE3.SA",
-    "BBAS3.SA",
-    "ITUB4.SA",
-    "BBDC4.SA",
-    "WEGE3.SA",
-    "PRIO3.SA",
-    "RENT3.SA",
+    "BOVA11.SA","IVVB11.SA","SMAL11.SA","GOLD11.SA",
 
-    "ELET3.SA",
-    "ELET6.SA",
-    "CPLE6.SA",
-    "CMIG4.SA",
-    "TAEE11.SA",
-    "EGIE3.SA",
-    "VIVT3.SA",
-    "TIMS3.SA",
-
-    "ABEV3.SA",
-    "RADL3.SA",
-    "SUZB3.SA",
-    "GGBR4.SA",
-    "GOAU4.SA",
-    "USIM5.SA",
-    "CSNA3.SA",
-    "RAIL3.SA",
-
-    "SBSP3.SA",
-    "EQTL3.SA",
-    "HYPE3.SA",
-    "MULT3.SA",
-    "LREN3.SA",
-    "ARZZ3.SA",
-    "TOTS3.SA",
-    "EMBR3.SA",
-
-    "JBSS3.SA",
-    "BEEF3.SA",
-    "MRFG3.SA",
-    "BRFS3.SA",
-    "SLCE3.SA",
-    "SMTO3.SA",
-    "B3SA3.SA",
-    "BBSE3.SA",
-
-    "BPAC11.SA",
-    "SANB11.SA",
-    "ITSA4.SA",
-    "BRSR6.SA",
-    "CXSE3.SA",
-    "POMO4.SA",
-    "STBP3.SA",
-    "TUPY3.SA",
-
-    "DIRR3.SA",
-    "CYRE3.SA",
-    "EZTC3.SA",
-    "JHSF3.SA",
-    "KEPL3.SA",
-    "POSI3.SA",
-    "MOVI3.SA",
-    "PETZ3.SA",
-
-    "COGN3.SA",
-    "YDUQ3.SA",
-    "MGLU3.SA",
-    "NTCO3.SA",
-    "AZUL4.SA",
-    "GOLL4.SA",
-    "CVCB3.SA",
-    "RRRP3.SA",
-
-    "RECV3.SA",
-    "ENAT3.SA",
-    "ORVR3.SA",
-    "AURE3.SA",
-    "ENEV3.SA",
-    "UGPA3.SA",
-
-    # =====================================================
-    # ETFs
-    # =====================================================
-
-    "BOVA11.SA",
-    "IVVB11.SA",
-    "SMAL11.SA",
-    "HASH11.SA",
-    "GOLD11.SA",
-    "DIVO11.SA",
-    "NDIV11.SA",
-
-    # =====================================================
-    # FIIs
-    # =====================================================
-
-    "HGLG11.SA",
-    "XPLG11.SA",
-    "VISC11.SA",
-    "MXRF11.SA",
-    "KNRI11.SA",
-    "KNCR11.SA",
-    "KNIP11.SA",
-
-    "CPTS11.SA",
-    "IRDM11.SA",
-    "TRXF11.SA",
-    "TGAR11.SA",
-    "HGRU11.SA",
-    "ALZR11.SA",
+    "HGLG11.SA","XPLG11.SA","MXRF11.SA","KNRI11.SA",
     "AUVP11.SA",
 
-    "GARE11.SA",
-    "IEEX11.SA",
-    "UTLL11.SA",
-
-    # =====================================================
-    # BDRs
-    # =====================================================
-
-    "AAPL34.SA",
-    "AMZO34.SA",
-    "GOGL34.SA",
-    "MSFT34.SA",
-    "TSLA34.SA",
-    "META34.SA",
-    "NFLX34.SA",
-
-    "NVDC34.SA",
-    "MELI34.SA",
-    "BABA34.SA",
-    "DISB34.SA",
-    "PYPL34.SA",
-    "JNJB34.SA",
-    "VISA34.SA",
-
-    "WMTB34.SA",
-    "NIKE34.SA",
-    "ADBE34.SA",
-    "CSCO34.SA",
-    "INTC34.SA",
-    "JPMC34.SA",
-    "ORCL34.SA"
+    "AAPL34.SA","AMZO34.SA","GOGL34.SA","MSFT34.SA",
+    "TSLA34.SA","META34.SA","NVDC34.SA"
 
 ]
 
@@ -244,7 +115,7 @@ def dmi(df, period=14):
     return plus_di, minus_di, adx
 
 
-def fibonacci(df):
+def calcular_fibonacci(df):
 
     lookback = 60
 
@@ -257,7 +128,136 @@ def fibonacci(df):
     fib_50 = topo - (diff * 0.5)
     fib_618 = topo - (diff * 0.618)
 
-    return fib_382, fib_50, fib_618
+    return topo, fundo, fib_382, fib_50, fib_618
+
+
+# =========================================================
+# PROBABILIDADE FIBONACCI
+# =========================================================
+
+def calcular_probabilidade_fib(df):
+
+    try:
+
+        resultados = {
+            "38.2": 0,
+            "50": 0,
+            "61.8": 0
+        }
+
+        total_382 = 0
+        total_50 = 0
+        total_618 = 0
+
+        janela = 30
+
+        for i in range(120, len(df) - 20):
+
+            trecho = df.iloc[i-60:i]
+
+            topo = trecho["High"].max()
+            fundo = trecho["Low"].min()
+
+            if fundo <= 0:
+                continue
+
+            impulso = (topo - fundo) / fundo
+
+            if impulso < 0.08:
+                continue
+
+            diff = topo - fundo
+
+            fib_382 = topo - (diff * 0.382)
+            fib_50 = topo - (diff * 0.5)
+            fib_618 = topo - (diff * 0.618)
+
+            preco = df.iloc[i]["Close"]
+
+            futuro = df.iloc[i:i+15]
+
+            max_futuro = futuro["High"].max()
+
+            ganho = (
+                (max_futuro - preco)
+                /
+                preco
+            )
+
+            # =================================================
+            # FIB 38.2
+            # =================================================
+
+            if abs(preco - fib_382) / fib_382 <= 0.01:
+
+                total_382 += 1
+
+                if ganho >= 0.05:
+                    resultados["38.2"] += 1
+
+            # =================================================
+            # FIB 50
+            # =================================================
+
+            if abs(preco - fib_50) / fib_50 <= 0.01:
+
+                total_50 += 1
+
+                if ganho >= 0.05:
+                    resultados["50"] += 1
+
+            # =================================================
+            # FIB 61.8
+            # =================================================
+
+            if abs(preco - fib_618) / fib_618 <= 0.01:
+
+                total_618 += 1
+
+                if ganho >= 0.05:
+                    resultados["61.8"] += 1
+
+        probabilidades = {}
+
+        probabilidades["38.2"] = (
+            round(
+                (resultados["38.2"] / total_382) * 100,
+                1
+            )
+            if total_382 > 0
+            else 0
+        )
+
+        probabilidades["50"] = (
+            round(
+                (resultados["50"] / total_50) * 100,
+                1
+            )
+            if total_50 > 0
+            else 0
+        )
+
+        probabilidades["61.8"] = (
+            round(
+                (resultados["61.8"] / total_618) * 100,
+                1
+            )
+            if total_618 > 0
+            else 0
+        )
+
+        melhor_fib = max(
+            probabilidades,
+            key=probabilidades.get
+        )
+
+        melhor_prob = probabilidades[melhor_fib]
+
+        return melhor_fib, melhor_prob
+
+    except:
+
+        return "-", 0
 
 
 # =========================================================
@@ -274,14 +274,14 @@ def analisar_ativo(ticker):
 
         df = yf.download(
             ticker,
-            period="2y",
+            period="5y",
             interval="1d",
             auto_adjust=True,
             progress=False
         )
 
         # =====================================================
-        # CORRIGE MULTIINDEX
+        # MULTIINDEX
         # =====================================================
 
         if isinstance(df.columns, pd.MultiIndex):
@@ -298,8 +298,7 @@ def analisar_ativo(ticker):
 
         df.dropna(inplace=True)
 
-        if len(df) < 100:
-
+        if len(df) < 250:
             return None
 
         # =====================================================
@@ -314,18 +313,27 @@ def analisar_ativo(ticker):
 
         df.dropna(inplace=True)
 
-        if len(df) < 50:
-
+        if len(df) < 100:
             return None
 
         # =====================================================
         # FIBONACCI
         # =====================================================
 
-        fib_382, fib_50, fib_618 = fibonacci(df)
+        topo, fundo, fib_382, fib_50, fib_618 = (
+            calcular_fibonacci(df)
+        )
 
         # =====================================================
-        # CANDLES
+        # PROBABILIDADE
+        # =====================================================
+
+        melhor_fib, melhor_prob = (
+            calcular_probabilidade_fib(df)
+        )
+
+        # =====================================================
+        # CANDLE
         # =====================================================
 
         hoje = df.iloc[-1]
@@ -362,15 +370,13 @@ def analisar_ativo(ticker):
         # SCORE
         # =====================================================
 
-        filtros = [
+        score = sum([
             tendencia,
             fib_ok,
             dmi_ok,
             adx_ok,
             estocastico_ok
-        ]
-
-        score = sum(filtros)
+        ])
 
         # =====================================================
         # STATUS
@@ -399,56 +405,62 @@ def analisar_ativo(ticker):
         return {
 
             "Ativo": ticker.replace(".SA", ""),
+
             "Status": status,
+
             "Score": score,
+
             "Preço": round(close, 2),
+
+            "Melhor Fib": melhor_fib,
+
+            "Probabilidade %": melhor_prob,
+
             "ADX": round(float(hoje["ADX"]), 1),
+
             "DI+": round(float(hoje["DI+"]), 1),
+
             "DI-": round(float(hoje["DI-"]), 1),
+
             "K": round(float(hoje["K"]), 1),
+
             "D": round(float(hoje["D"]), 1),
+
             "Fib 38.2": round(float(fib_382), 2),
+
             "Fib 50": round(float(fib_50), 2),
+
             "Fib 61.8": round(float(fib_618), 2)
 
         }
 
-    except Exception as erro:
+    except:
 
-        return {
-            "Ativo": ticker.replace(".SA", ""),
-            "Status": f"ERRO",
-            "Score": 0,
-            "Preço": 0,
-            "ADX": 0,
-            "DI+": 0,
-            "DI-": 0,
-            "K": 0,
-            "D": 0,
-            "Fib 38.2": 0,
-            "Fib 50": 0,
-            "Fib 61.8": 0
-        }
+        return None
+
 
 # =========================================================
 # TÍTULO
 # =========================================================
 
-st.title("📈 Scanner Fibonacci Tendencial PRO")
+st.title("📈 Scanner Fibonacci Probabilístico PRO")
 
 st.markdown("""
 
-Scanner focado em:
+### O scanner utiliza:
+
 - EMA69
 - Fibonacci
 - DMI
 - ADX
 - Estocástico
+- Estatística histórica
 
-Ideal para:
-- swing trade;
-- operação noturna;
-- entradas por pullback.
+### NOVA FUNÇÃO:
+
+Agora o app calcula:
+- qual Fibonacci historicamente funciona melhor;
+- probabilidade estatística de reação.
 
 """)
 
@@ -474,7 +486,7 @@ if st.button("ESCANEAR MERCADO"):
         progresso.progress((i + 1) / total)
 
     # =====================================================
-    # DATAFRAME
+    # RESULTADOS
     # =====================================================
 
     if resultados:
@@ -486,8 +498,7 @@ if st.button("ESCANEAR MERCADO"):
             "🔥 ENTRADA IDEAL": 0,
             "🟢 ENTRADA ANTECIPADA": 1,
             "🟡 OBSERVAÇÃO": 2,
-            "❌ DESCARTAR": 3,
-            "ERRO": 4
+            "❌ DESCARTAR": 3
 
         }
 
@@ -496,8 +507,12 @@ if st.button("ESCANEAR MERCADO"):
         )
 
         df_resultados = df_resultados.sort_values(
-            by=["Ordem", "Score"],
-            ascending=[True, False]
+            by=[
+                "Ordem",
+                "Probabilidade %",
+                "Score"
+            ],
+            ascending=[True, False, False]
         )
 
         df_resultados.drop(
@@ -513,7 +528,9 @@ if st.button("ESCANEAR MERCADO"):
         if not mostrar_descartados:
 
             df_resultados = df_resultados[
-                df_resultados["Status"] != "❌ DESCARTAR"
+                df_resultados["Status"]
+                !=
+                "❌ DESCARTAR"
             ]
 
         st.dataframe(
@@ -580,5 +597,5 @@ if st.button("ESCANEAR MERCADO"):
 st.markdown("---")
 
 st.caption(
-    "Scanner Fibonacci Tendencial PRO"
+    "Scanner Fibonacci Probabilístico PRO"
 )
