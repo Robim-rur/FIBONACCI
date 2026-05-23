@@ -68,6 +68,7 @@ ATIVOS = [
     "SMTO3.SA",
     "B3SA3.SA",
     "BBSE3.SA",
+    "ABCB4.SA",
 
     "BPAC11.SA",
     "SANB11.SA",
