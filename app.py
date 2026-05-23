@@ -4,19 +4,18 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import yfinance as yf
-import plotly.graph_objects as go
 
 # =========================================================
-# CONFIGURAÇÃO
+# CONFIG
 # =========================================================
 
 st.set_page_config(
-    page_title="Scanner Fibonacci Tendencial",
+    page_title="Scanner Fibonacci Tendencial PRO",
     layout="wide"
 )
 
 # =========================================================
-# LISTA DE ATIVOS
+# ATIVOS
 # =========================================================
 
 ATIVOS = [
@@ -175,17 +174,26 @@ ATIVOS = [
 # =========================================================
 
 def ema(series, period):
-    return series.ewm(span=period, adjust=False).mean()
+
+    return series.ewm(
+        span=period,
+        adjust=False
+    ).mean()
 
 
-def stochastic(df, period=14, smooth_k=3, smooth_d=3):
+def stochastic(df, period=14):
 
     low_min = df["Low"].rolling(period).min()
     high_max = df["High"].rolling(period).max()
 
-    k = 100 * ((df["Close"] - low_min) / (high_max - low_min))
-    k = k.rolling(smooth_k).mean()
-    d = k.rolling(smooth_d).mean()
+    k = 100 * (
+        (df["Close"] - low_min)
+        /
+        (high_max - low_min)
+    )
+
+    k = k.rolling(3).mean()
+    d = k.rolling(3).mean()
 
     return k, d
 
@@ -203,25 +211,32 @@ def dmi(df, period=14):
     minus_dm[minus_dm < 0] = 0
 
     tr1 = high - low
-    tr2 = (high - close.shift()).abs()
-    tr3 = (low - close.shift()).abs()
+    tr2 = abs(high - close.shift())
+    tr3 = abs(low - close.shift())
 
-    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    tr = pd.concat(
+        [tr1, tr2, tr3],
+        axis=1
+    ).max(axis=1)
 
     atr = tr.rolling(period).mean()
 
     plus_di = (
-        100 * plus_dm.rolling(period).mean() / atr
+        100
+        * plus_dm.rolling(period).mean()
+        / atr
     )
 
     minus_di = (
-        100 * minus_dm.rolling(period).mean() / atr
+        100
+        * minus_dm.rolling(period).mean()
+        / atr
     )
 
     dx = (
-        ((plus_di - minus_di).abs())
+        abs(plus_di - minus_di)
         /
-        ((plus_di + minus_di).abs())
+        (plus_di + minus_di)
     ) * 100
 
     adx = dx.rolling(period).mean()
@@ -229,7 +244,7 @@ def dmi(df, period=14):
     return plus_di, minus_di, adx
 
 
-def calcular_fibonacci(df):
+def fibonacci(df):
 
     lookback = 60
 
@@ -242,7 +257,7 @@ def calcular_fibonacci(df):
     fib_50 = topo - (diff * 0.5)
     fib_618 = topo - (diff * 0.618)
 
-    return topo, fundo, fib_382, fib_50, fib_618
+    return fib_382, fib_50, fib_618
 
 
 # =========================================================
@@ -265,7 +280,26 @@ def analisar_ativo(ticker):
             progress=False
         )
 
-        if df.empty or len(df) < 250:
+        # =====================================================
+        # CORRIGE MULTIINDEX
+        # =====================================================
+
+        if isinstance(df.columns, pd.MultiIndex):
+
+            df.columns = df.columns.get_level_values(0)
+
+        # =====================================================
+        # LIMPEZA
+        # =====================================================
+
+        df = df[
+            ["Open", "High", "Low", "Close", "Volume"]
+        ].copy()
+
+        df.dropna(inplace=True)
+
+        if len(df) < 100:
+
             return None
 
         # =====================================================
@@ -273,142 +307,80 @@ def analisar_ativo(ticker):
         # =====================================================
 
         df["EMA69"] = ema(df["Close"], 69)
-        df["EMA21"] = ema(df["Close"], 21)
 
         df["K"], df["D"] = stochastic(df)
 
         df["DI+"], df["DI-"], df["ADX"] = dmi(df)
 
+        df.dropna(inplace=True)
+
+        if len(df) < 50:
+
+            return None
+
         # =====================================================
         # FIBONACCI
         # =====================================================
 
-        topo, fundo, fib_382, fib_50, fib_618 = calcular_fibonacci(df)
+        fib_382, fib_50, fib_618 = fibonacci(df)
 
         # =====================================================
         # CANDLES
         # =====================================================
 
         hoje = df.iloc[-1]
-        ontem = df.iloc[-2]
 
         close = float(hoje["Close"])
 
         # =====================================================
-        # TENDÊNCIA
+        # FILTROS
         # =====================================================
 
         tendencia = (
             close > hoje["EMA69"]
         )
 
-        # =====================================================
-        # IMPULSO
-        # =====================================================
-
-        impulso = (
-            ((topo - fundo) / fundo) >= 0.08
-        )
-
-        # =====================================================
-        # FIBONACCI
-        # =====================================================
-
-        dentro_fib = (
+        fib_ok = (
             close <= fib_382
             and
             close >= fib_618
         )
 
-        # =====================================================
-        # DMI
-        # =====================================================
-
         dmi_ok = (
             hoje["DI+"] > hoje["DI-"]
         )
 
-        # =====================================================
-        # ADX
-        # =====================================================
-
         adx_ok = (
             hoje["ADX"] > 16
         )
-
-        # =====================================================
-        # ESTOCÁSTICO
-        # =====================================================
 
         estocastico_ok = (
             hoje["K"] > hoje["D"]
         )
 
         # =====================================================
-        # CANDLE DE REJEIÇÃO
-        # =====================================================
-
-        amplitude = hoje["High"] - hoje["Low"]
-
-        if amplitude == 0:
-            amplitude = 0.0001
-
-        candle_rejeicao = (
-
-            hoje["Low"] < ontem["Low"]
-
-            and
-
-            hoje["Close"] >
-            (
-                hoje["Low"] + (amplitude * 0.6)
-            )
-
-        )
-
-        # =====================================================
-        # DISTÂNCIA EMA69
-        # =====================================================
-
-        dist_ema69 = (
-            ((close / hoje["EMA69"]) - 1) * 100
-        )
-
-        dist_ema_ok = (
-            dist_ema69 <= 15
-        )
-
-        # =====================================================
         # SCORE
         # =====================================================
 
-        score = 0
+        filtros = [
+            tendencia,
+            fib_ok,
+            dmi_ok,
+            adx_ok,
+            estocastico_ok
+        ]
 
-        filtros = {
-
-            "Tendência": tendencia,
-            "Impulso": impulso,
-            "Fib": dentro_fib,
-            "DMI": dmi_ok,
-            "ADX": adx_ok,
-            "Estocástico": estocastico_ok,
-            "Rejeição": candle_rejeicao
-
-        }
-
-        for valor in filtros.values():
-            if valor:
-                score += 1
+        score = sum(filtros)
 
         # =====================================================
         # STATUS
         # =====================================================
 
-        if score >= 7:
+        if score >= 5:
 
             status = "🔥 ENTRADA IDEAL"
 
-        elif score >= 5:
+        elif score >= 4:
 
             status = "🟢 ENTRADA ANTECIPADA"
 
@@ -421,76 +393,42 @@ def analisar_ativo(ticker):
             status = "❌ DESCARTAR"
 
         # =====================================================
-        # PROXIMIDADE DOS FIBOS
-        # =====================================================
-
-        dist_382 = (
-            ((close / fib_382) - 1) * 100
-        )
-
-        dist_50 = (
-            ((close / fib_50) - 1) * 100
-        )
-
-        dist_618 = (
-            ((close / fib_618) - 1) * 100
-        )
-
-        # =====================================================
         # RESULTADO
         # =====================================================
 
         return {
 
             "Ativo": ticker.replace(".SA", ""),
-
             "Status": status,
-
             "Score": score,
-
             "Preço": round(close, 2),
-
             "ADX": round(float(hoje["ADX"]), 1),
-
             "DI+": round(float(hoje["DI+"]), 1),
-
             "DI-": round(float(hoje["DI-"]), 1),
-
             "K": round(float(hoje["K"]), 1),
-
             "D": round(float(hoje["D"]), 1),
-
             "Fib 38.2": round(float(fib_382), 2),
-
             "Fib 50": round(float(fib_50), 2),
-
-            "Fib 61.8": round(float(fib_618), 2),
-
-            "Dist EMA69 %": round(float(dist_ema69), 2),
-
-            "Dist Fib38 %": round(float(dist_382), 2),
-
-            "Dist Fib50 %": round(float(dist_50), 2),
-
-            "Dist Fib61 %": round(float(dist_618), 2),
-
-            "Tendência": "SIM" if tendencia else "NÃO",
-
-            "Fib": "SIM" if dentro_fib else "NÃO",
-
-            "DMI": "SIM" if dmi_ok else "NÃO",
-
-            "ADX Forte": "SIM" if adx_ok else "NÃO",
-
-            "Estocástico": "SIM" if estocastico_ok else "NÃO",
-
-            "Rejeição": "SIM" if candle_rejeicao else "NÃO"
+            "Fib 61.8": round(float(fib_618), 2)
 
         }
 
-    except:
-        return None
+    except Exception as erro:
 
+        return {
+            "Ativo": ticker.replace(".SA", ""),
+            "Status": f"ERRO",
+            "Score": 0,
+            "Preço": 0,
+            "ADX": 0,
+            "DI+": 0,
+            "DI-": 0,
+            "K": 0,
+            "D": 0,
+            "Fib 38.2": 0,
+            "Fib 50": 0,
+            "Fib 61.8": 0
+        }
 
 # =========================================================
 # TÍTULO
@@ -500,21 +438,17 @@ st.title("📈 Scanner Fibonacci Tendencial PRO")
 
 st.markdown("""
 
-### O scanner procura:
+Scanner focado em:
+- EMA69
+- Fibonacci
+- DMI
+- ADX
+- Estocástico
 
-- tendência acima da EMA69;
-- pullback em Fibonacci;
-- DMI comprador;
-- ADX forte;
-- estocástico comprador;
-- candle de rejeição institucional.
-
-### Classificação:
-
-- 🔥 ENTRADA IDEAL → setup extremamente alinhado
-- 🟢 ENTRADA ANTECIPADA → excelente para acompanhar
-- 🟡 OBSERVAÇÃO → ativo promissor
-- ❌ DESCARTAR → fora do padrão
+Ideal para:
+- swing trade;
+- operação noturna;
+- entradas por pullback.
 
 """)
 
@@ -540,24 +474,25 @@ if st.button("ESCANEAR MERCADO"):
         progresso.progress((i + 1) / total)
 
     # =====================================================
-    # RESULTADOS
+    # DATAFRAME
     # =====================================================
 
     if resultados:
 
         df_resultados = pd.DataFrame(resultados)
 
-        ordem_status = {
+        ordem = {
 
             "🔥 ENTRADA IDEAL": 0,
             "🟢 ENTRADA ANTECIPADA": 1,
             "🟡 OBSERVAÇÃO": 2,
-            "❌ DESCARTAR": 3
+            "❌ DESCARTAR": 3,
+            "ERRO": 4
 
         }
 
         df_resultados["Ordem"] = (
-            df_resultados["Status"].map(ordem_status)
+            df_resultados["Status"].map(ordem)
         )
 
         df_resultados = df_resultados.sort_values(
@@ -565,16 +500,13 @@ if st.button("ESCANEAR MERCADO"):
             ascending=[True, False]
         )
 
-        df_resultados = df_resultados.drop(
-            columns=["Ordem"]
+        df_resultados.drop(
+            columns=["Ordem"],
+            inplace=True
         )
 
-        # =================================================
-        # FILTRO
-        # =================================================
-
         mostrar_descartados = st.checkbox(
-            "Mostrar ativos descartados",
+            "Mostrar descartados",
             value=False
         )
 
@@ -584,12 +516,6 @@ if st.button("ESCANEAR MERCADO"):
                 df_resultados["Status"] != "❌ DESCARTAR"
             ]
 
-        # =================================================
-        # RESULTADOS
-        # =================================================
-
-        st.subheader("📊 Resultado do Scanner")
-
         st.dataframe(
             df_resultados,
             use_container_width=True,
@@ -597,63 +523,54 @@ if st.button("ESCANEAR MERCADO"):
         )
 
         # =================================================
-        # ENTRADAS IDEAIS
+        # RESUMO
         # =================================================
 
-        entradas_ideais = df_resultados[
-            df_resultados["Status"] == "🔥 ENTRADA IDEAL"
-        ]
+        ideal = len(
+            df_resultados[
+                df_resultados["Status"]
+                ==
+                "🔥 ENTRADA IDEAL"
+            ]
+        )
 
-        st.subheader("🔥 Entradas Ideais")
+        antecipada = len(
+            df_resultados[
+                df_resultados["Status"]
+                ==
+                "🟢 ENTRADA ANTECIPADA"
+            ]
+        )
 
-        if not entradas_ideais.empty:
+        observacao = len(
+            df_resultados[
+                df_resultados["Status"]
+                ==
+                "🟡 OBSERVAÇÃO"
+            ]
+        )
 
-            st.success(
-                f"{len(entradas_ideais)} ativo(s) encontrado(s)."
-            )
+        col1, col2, col3 = st.columns(3)
 
-            st.dataframe(
-                entradas_ideais,
-                use_container_width=True
-            )
+        col1.metric(
+            "🔥 Entradas Ideais",
+            ideal
+        )
 
-        else:
+        col2.metric(
+            "🟢 Antecipadas",
+            antecipada
+        )
 
-            st.warning(
-                "Nenhuma entrada ideal encontrada hoje."
-            )
-
-        # =================================================
-        # ENTRADAS ANTECIPADAS
-        # =================================================
-
-        entradas_antecipadas = df_resultados[
-            df_resultados["Status"] == "🟢 ENTRADA ANTECIPADA"
-        ]
-
-        st.subheader("🟢 Entradas Antecipadas")
-
-        if not entradas_antecipadas.empty:
-
-            st.success(
-                f"{len(entradas_antecipadas)} ativo(s) encontrados."
-            )
-
-            st.dataframe(
-                entradas_antecipadas,
-                use_container_width=True
-            )
-
-        else:
-
-            st.info(
-                "Nenhuma entrada antecipada encontrada."
-            )
+        col3.metric(
+            "🟡 Observação",
+            observacao
+        )
 
     else:
 
         st.error(
-            "Nenhum ativo retornou dados."
+            "Nenhum resultado encontrado."
         )
 
 # =========================================================
@@ -663,5 +580,5 @@ if st.button("ESCANEAR MERCADO"):
 st.markdown("---")
 
 st.caption(
-    "Scanner Fibonacci Tendencial PRO | EMA69 + Fibonacci + DMI + ADX + Estocástico"
+    "Scanner Fibonacci Tendencial PRO"
 )
