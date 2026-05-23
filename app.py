@@ -136,6 +136,7 @@ ATIVOS = [
     "ALZR11.SA",
     "AUVP11.SA",
 
+    "GARE11.SA",
     "IEEX11.SA",
     "UTLL11.SA",
 
