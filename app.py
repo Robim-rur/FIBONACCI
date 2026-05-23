@@ -30,7 +30,7 @@ div[data-testid="stDataFrame"] > div {
 }
 
 /* =====================================================
-TABELA MAIS LIMPA
+TABELA
 ===================================================== */
 
 thead tr th {
@@ -337,10 +337,6 @@ def melhor_fib_historica(df, ticker):
         "61.8": []
     }
 
-    # =====================================================
-    # IMPULSO ADAPTATIVO
-    # =====================================================
-
     if "11.SA" in ticker:
 
         impulso_min = 0.04
@@ -556,7 +552,7 @@ def chance_continuacao(
     return min(score, 95)
 
 # =========================================================
-# POTENCIAL DE ALTA
+# POTENCIAL ALTA
 # =========================================================
 
 def potencial_alta(
@@ -657,10 +653,6 @@ def analisar_ativo(ticker):
 
             return None
 
-        # =================================================
-        # INDICADORES
-        # =================================================
-
         df["EMA69"] = ema(
             df["Close"],
             69
@@ -672,17 +664,9 @@ def analisar_ativo(ticker):
 
         df.dropna(inplace=True)
 
-        # =================================================
-        # FIBS
-        # =================================================
-
         topo, fundo, fib_382, fib_50, fib_618 = (
             calcular_fibs(df)
         )
-
-        # =================================================
-        # MELHOR FIB
-        # =================================================
 
         melhor_fib, probs = (
             melhor_fib_historica(
@@ -695,20 +679,12 @@ def analisar_ativo(ticker):
 
         close = float(hoje["Close"])
 
-        # =================================================
-        # FIB ATUAL
-        # =================================================
-
         fib_atual = identificar_fib_atual(
             close,
             fib_382,
             fib_50,
             fib_618
         )
-
-        # =================================================
-        # REVERSÃO
-        # =================================================
 
         reversao = chance_reversao(
             close,
@@ -717,19 +693,11 @@ def analisar_ativo(ticker):
             hoje
         )
 
-        # =================================================
-        # CONTINUAÇÃO
-        # =================================================
-
         continuacao = chance_continuacao(
             fib_atual,
             melhor_fib,
             hoje
         )
-
-        # =================================================
-        # SCORE
-        # =================================================
 
         score = 0
 
@@ -748,18 +716,10 @@ def analisar_ativo(ticker):
         if fib_atual in ["50", "61.8"]:
             score += 1
 
-        # =================================================
-        # POTENCIAL
-        # =================================================
-
         potencial, espaco = potencial_alta(
             topo,
             close
         )
-
-        # =================================================
-        # STATUS
-        # =================================================
 
         status = classificar(
             reversao,
@@ -862,10 +822,6 @@ if st.button("ESCANEAR MERCADO"):
             (i + 1) / total
         )
 
-    # =====================================================
-    # RESULTADOS
-    # =====================================================
-
     if resultados:
 
         df_resultados = pd.DataFrame(resultados)
@@ -912,22 +868,73 @@ if st.button("ESCANEAR MERCADO"):
             ]
 
         # =================================================
-        # SCROLL SUPERIOR
+        # BARRA SUPERIOR
         # =================================================
 
-        st.markdown("""
-        <div style="overflow-x:auto; width:100%;">
-        """, unsafe_allow_html=True)
+        scroll_html = """
+        <div id="top-scroll" style="
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+            height: 20px;
+            margin-bottom: 4px;
+        ">
+            <div style="width: 2600px; height:1px;"></div>
+        </div>
+
+        <script>
+
+        function conectarScroll() {
+
+            const topScroll =
+                window.parent.document.getElementById(
+                    'top-scroll'
+                );
+
+            const tables =
+                window.parent.document.querySelectorAll(
+                    '[data-testid="stDataFrame"] div[style*="overflow"]'
+                );
+
+            if (tables.length > 0) {
+
+                const table =
+                    tables[tables.length - 1];
+
+                topScroll.onscroll = () => {
+                    table.scrollLeft =
+                        topScroll.scrollLeft;
+                };
+
+                table.onscroll = () => {
+                    topScroll.scrollLeft =
+                        table.scrollLeft;
+                };
+            }
+        }
+
+        setTimeout(
+            conectarScroll,
+            1000
+        );
+
+        </script>
+        """
+
+        st.markdown(
+            scroll_html,
+            unsafe_allow_html=True
+        )
+
+        # =================================================
+        # TABELA
+        # =================================================
 
         st.dataframe(
             df_resultados,
             use_container_width=False,
             height=750
         )
-
-        st.markdown("""
-        </div>
-        """, unsafe_allow_html=True)
 
         # =================================================
         # RESUMO
