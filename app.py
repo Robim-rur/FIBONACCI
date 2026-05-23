@@ -15,6 +15,53 @@ st.set_page_config(
 )
 
 # =========================================================
+# CSS
+# =========================================================
+
+st.markdown("""
+<style>
+
+/* =====================================================
+SCROLL SUPERIOR E INFERIOR
+===================================================== */
+
+div[data-testid="stDataFrame"] > div {
+    overflow: auto !important;
+}
+
+/* =====================================================
+TABELA MAIS LIMPA
+===================================================== */
+
+thead tr th {
+    position: sticky;
+    top: 0;
+    background-color: #0e1117;
+    z-index: 2;
+}
+
+/* =====================================================
+SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar {
+    height: 12px;
+    width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #222;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# =========================================================
 # ATIVOS
 # =========================================================
 
@@ -291,7 +338,7 @@ def melhor_fib_historica(df, ticker):
     }
 
     # =====================================================
-    # IMPULSO MÍNIMO ADAPTATIVO
+    # IMPULSO ADAPTATIVO
     # =====================================================
 
     if "11.SA" in ticker:
@@ -314,10 +361,6 @@ def melhor_fib_historica(df, ticker):
             continue
 
         impulso = (topo - fundo) / fundo
-
-        # =================================================
-        # FILTRO DE IMPULSO
-        # =================================================
 
         if impulso < impulso_min:
             continue
@@ -424,10 +467,6 @@ def chance_reversao(
 
     score = 0
 
-    # =====================================================
-    # FIBONACCI
-    # =====================================================
-
     if fib_atual == melhor_fib:
 
         score += 35
@@ -448,33 +487,17 @@ def chance_reversao(
 
         score += 15
 
-    # =====================================================
-    # ESTOCÁSTICO
-    # =====================================================
-
     if hoje["K"] > hoje["D"]:
 
         score += 20
-
-    # =====================================================
-    # DMI
-    # =====================================================
 
     if hoje["DI+"] > hoje["DI-"]:
 
         score += 20
 
-    # =====================================================
-    # ADX
-    # =====================================================
-
     if hoje["ADX"] > 18:
 
         score += 15
-
-    # =====================================================
-    # EMA69
-    # =====================================================
 
     if close > hoje["EMA69"]:
 
@@ -493,10 +516,6 @@ def chance_continuacao(
 ):
 
     score = 0
-
-    # =====================================================
-    # FIBONACCI
-    # =====================================================
 
     if (
         fib_atual == "38.2"
@@ -522,25 +541,13 @@ def chance_continuacao(
 
         score += 25
 
-    # =====================================================
-    # ESTOCÁSTICO
-    # =====================================================
-
     if hoje["K"] < hoje["D"]:
 
         score += 20
 
-    # =====================================================
-    # DMI
-    # =====================================================
-
     if hoje["DI-"] > hoje["DI+"]:
 
         score += 20
-
-    # =====================================================
-    # ADX
-    # =====================================================
 
     if hoje["ADX"] > 20:
 
@@ -549,46 +556,34 @@ def chance_continuacao(
     return min(score, 95)
 
 # =========================================================
-# ALVOS FIBONACCI
+# POTENCIAL DE ALTA
 # =========================================================
 
-def calcular_alvos(
+def potencial_alta(
     topo,
-    fundo,
     close
 ):
 
-    impulso = topo - fundo
-
-    alvo_1 = topo
-
-    alvo_1272 = topo + (impulso * 0.272)
-
-    alvo_1618 = topo + (impulso * 0.618)
-
-    gain_1 = (
-        (alvo_1 - close)
+    espaco = (
+        (topo - close)
         / close
     ) * 100
 
-    gain_1272 = (
-        (alvo_1272 - close)
-        / close
-    ) * 100
+    espaco = round(espaco, 1)
 
-    gain_1618 = (
-        (alvo_1618 - close)
-        / close
-    ) * 100
+    if espaco < 5:
 
-    return (
-        alvo_1,
-        alvo_1272,
-        alvo_1618,
-        gain_1,
-        gain_1272,
-        gain_1618
-    )
+        classificacao = "🔴 BAIXO"
+
+    elif espaco < 10:
+
+        classificacao = "🟡 MÉDIO"
+
+    else:
+
+        classificacao = "🔥 ALTO"
+
+    return classificacao, espaco
 
 # =========================================================
 # CLASSIFICAÇÃO
@@ -754,19 +749,11 @@ def analisar_ativo(ticker):
             score += 1
 
         # =================================================
-        # ALVOS
+        # POTENCIAL
         # =================================================
 
-        (
-            alvo_1,
-            alvo_1272,
-            alvo_1618,
-            gain_1,
-            gain_1272,
-            gain_1618
-        ) = calcular_alvos(
+        potencial, espaco = potencial_alta(
             topo,
-            fundo,
             close
         )
 
@@ -796,6 +783,10 @@ def analisar_ativo(ticker):
 
             "Chance Continuar Correção %": continuacao,
 
+            "Potencial Alta": potencial,
+
+            "Espaço Alta %": espaco,
+
             "Prob 38.2": probs["38.2"],
 
             "Prob 50": probs["50"],
@@ -818,19 +809,7 @@ def analisar_ativo(ticker):
 
             "Fib 50": round(float(fib_50), 2),
 
-            "Fib 61.8": round(float(fib_618), 2),
-
-            "Alvo 1.0": round(float(alvo_1), 2),
-
-            "Gain 1.0 %": round(float(gain_1), 1),
-
-            "Alvo 1.272": round(float(alvo_1272), 2),
-
-            "Gain 1.272 %": round(float(gain_1272), 1),
-
-            "Alvo 1.618": round(float(alvo_1618), 2),
-
-            "Gain 1.618 %": round(float(gain_1618), 1)
+            "Fib 61.8": round(float(fib_618), 2)
 
         }
 
@@ -854,8 +833,8 @@ st.markdown("""
 - Melhor Fibonacci histórica;
 - Chance de reversão;
 - Chance de continuar corrigindo;
-- Alvos Fibonacci;
-- Gains prováveis.
+- Potencial de alta;
+- Espaço operacional.
 
 """)
 
@@ -908,7 +887,7 @@ if st.button("ESCANEAR MERCADO"):
             by=[
                 "Ordem",
                 "Chance Reversão %",
-                "Gain 1.272 %",
+                "Espaço Alta %",
                 "Score"
             ],
             ascending=[True, False, False, False]
@@ -932,11 +911,23 @@ if st.button("ESCANEAR MERCADO"):
                 "🟡 OBSERVAÇÃO"
             ]
 
+        # =================================================
+        # SCROLL SUPERIOR
+        # =================================================
+
+        st.markdown("""
+        <div style="overflow-x:auto; width:100%;">
+        """, unsafe_allow_html=True)
+
         st.dataframe(
             df_resultados,
-            use_container_width=True,
+            use_container_width=False,
             height=750
         )
+
+        st.markdown("""
+        </div>
+        """, unsafe_allow_html=True)
 
         # =================================================
         # RESUMO
