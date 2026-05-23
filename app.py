@@ -10,7 +10,7 @@ import yfinance as yf
 # =========================================================
 
 st.set_page_config(
-    page_title="Scanner Fibonacci Probabilístico PRO",
+    page_title="Scanner Fibonacci Inteligente PRO",
     layout="wide"
 )
 
@@ -20,28 +20,157 @@ st.set_page_config(
 
 ATIVOS = [
 
-    "PETR4.SA","VALE3.SA","BBAS3.SA","ITUB4.SA","BBDC4.SA",
-    "WEGE3.SA","PRIO3.SA","RENT3.SA","ELET3.SA","ELET6.SA",
-    "CPLE6.SA","CMIG4.SA","TAEE11.SA","EGIE3.SA","VIVT3.SA",
-    "TIMS3.SA","ABEV3.SA","RADL3.SA","SUZB3.SA","GGBR4.SA",
-    "GOAU4.SA","USIM5.SA","CSNA3.SA","RAIL3.SA","SBSP3.SA",
-    "EQTL3.SA","HYPE3.SA","MULT3.SA","LREN3.SA","ARZZ3.SA",
-    "TOTS3.SA","EMBR3.SA","JBSS3.SA","BEEF3.SA","MRFG3.SA",
-    "BRFS3.SA","SLCE3.SA","SMTO3.SA","B3SA3.SA","BBSE3.SA",
-    "BPAC11.SA","SANB11.SA","ITSA4.SA",
+    # =====================================================
+    # AÇÕES
+    # =====================================================
 
-    "BOVA11.SA","IVVB11.SA","SMAL11.SA","GOLD11.SA",
+    "PETR4.SA",
+    "VALE3.SA",
+    "BBAS3.SA",
+    "ITUB4.SA",
+    "BBDC4.SA",
+    "WEGE3.SA",
+    "PRIO3.SA",
+    "RENT3.SA",
 
-    "HGLG11.SA","XPLG11.SA","MXRF11.SA","KNRI11.SA",
+    "ELET3.SA",
+    "ELET6.SA",
+    "CPLE6.SA",
+    "CMIG4.SA",
+    "TAEE11.SA",
+    "EGIE3.SA",
+    "VIVT3.SA",
+    "TIMS3.SA",
+
+    "ABEV3.SA",
+    "RADL3.SA",
+    "SUZB3.SA",
+    "GGBR4.SA",
+    "GOAU4.SA",
+    "USIM5.SA",
+    "CSNA3.SA",
+    "RAIL3.SA",
+
+    "SBSP3.SA",
+    "EQTL3.SA",
+    "HYPE3.SA",
+    "MULT3.SA",
+    "LREN3.SA",
+    "ARZZ3.SA",
+    "TOTS3.SA",
+    "EMBR3.SA",
+
+    "JBSS3.SA",
+    "BEEF3.SA",
+    "MRFG3.SA",
+    "BRFS3.SA",
+    "SLCE3.SA",
+    "SMTO3.SA",
+    "B3SA3.SA",
+    "BBSE3.SA",
+
+    "BPAC11.SA",
+    "SANB11.SA",
+    "ITSA4.SA",
+    "BRSR6.SA",
+    "CXSE3.SA",
+    "POMO4.SA",
+    "STBP3.SA",
+    "TUPY3.SA",
+
+    "DIRR3.SA",
+    "CYRE3.SA",
+    "EZTC3.SA",
+    "JHSF3.SA",
+    "KEPL3.SA",
+    "POSI3.SA",
+    "MOVI3.SA",
+    "PETZ3.SA",
+
+    "COGN3.SA",
+    "YDUQ3.SA",
+    "MGLU3.SA",
+    "NTCO3.SA",
+    "AZUL4.SA",
+    "GOLL4.SA",
+    "CVCB3.SA",
+    "RRRP3.SA",
+
+    "RECV3.SA",
+    "ENAT3.SA",
+    "ORVR3.SA",
+    "AURE3.SA",
+    "ENEV3.SA",
+    "UGPA3.SA",
+
+    # =====================================================
+    # ETFs
+    # =====================================================
+
+    "BOVA11.SA",
+    "IVVB11.SA",
+    "SMAL11.SA",
+    "HASH11.SA",
+    "GOLD11.SA",
+    "DIVO11.SA",
+    "NDIV11.SA",
+
+    # =====================================================
+    # FIIs
+    # =====================================================
+
+    "HGLG11.SA",
+    "XPLG11.SA",
+    "VISC11.SA",
+    "MXRF11.SA",
+    "KNRI11.SA",
+    "KNCR11.SA",
+    "KNIP11.SA",
+
+    "CPTS11.SA",
+    "IRDM11.SA",
+    "TRXF11.SA",
+    "TGAR11.SA",
+    "HGRU11.SA",
+    "ALZR11.SA",
     "AUVP11.SA",
 
-    "AAPL34.SA","AMZO34.SA","GOGL34.SA","MSFT34.SA",
-    "TSLA34.SA","META34.SA","NVDC34.SA"
+    "GARE11.SA",
+    "IEEX11.SA",
+    "UTLL11.SA",
+
+    # =====================================================
+    # BDRs
+    # =====================================================
+
+    "AAPL34.SA",
+    "AMZO34.SA",
+    "GOGL34.SA",
+    "MSFT34.SA",
+    "TSLA34.SA",
+    "META34.SA",
+    "NFLX34.SA",
+
+    "NVDC34.SA",
+    "MELI34.SA",
+    "BABA34.SA",
+    "DISB34.SA",
+    "PYPL34.SA",
+    "JNJB34.SA",
+    "VISA34.SA",
+
+    "WMTB34.SA",
+    "NIKE34.SA",
+    "ADBE34.SA",
+    "CSCO34.SA",
+    "INTC34.SA",
+    "JPMC34.SA",
+    "ORCL34.SA"
 
 ]
 
 # =========================================================
-# FUNÇÕES
+# INDICADORES
 # =========================================================
 
 def ema(series, period):
@@ -55,6 +184,7 @@ def ema(series, period):
 def stochastic(df, period=14):
 
     low_min = df["Low"].rolling(period).min()
+
     high_max = df["High"].rolling(period).max()
 
     k = 100 * (
@@ -64,6 +194,7 @@ def stochastic(df, period=14):
     )
 
     k = k.rolling(3).mean()
+
     d = k.rolling(3).mean()
 
     return k, d
@@ -72,17 +203,23 @@ def stochastic(df, period=14):
 def dmi(df, period=14):
 
     high = df["High"]
+
     low = df["Low"]
+
     close = df["Close"]
 
     plus_dm = high.diff()
+
     minus_dm = low.diff() * -1
 
     plus_dm[plus_dm < 0] = 0
+
     minus_dm[minus_dm < 0] = 0
 
     tr1 = high - low
+
     tr2 = abs(high - close.shift())
+
     tr3 = abs(low - close.shift())
 
     tr = pd.concat(
@@ -115,149 +252,270 @@ def dmi(df, period=14):
     return plus_di, minus_di, adx
 
 
-def calcular_fibonacci(df):
+# =========================================================
+# FIBONACCI
+# =========================================================
+
+def calcular_fibs(df):
 
     lookback = 60
 
     topo = df["High"].tail(lookback).max()
+
     fundo = df["Low"].tail(lookback).min()
 
     diff = topo - fundo
 
     fib_382 = topo - (diff * 0.382)
+
     fib_50 = topo - (diff * 0.5)
+
     fib_618 = topo - (diff * 0.618)
 
-    return topo, fundo, fib_382, fib_50, fib_618
+    return fib_382, fib_50, fib_618
 
 
 # =========================================================
-# PROBABILIDADE FIBONACCI
+# MELHOR FIB HISTÓRICA
 # =========================================================
 
-def calcular_probabilidade_fib(df):
+def melhor_fib_historica(df):
 
-    try:
+    resultados = {
+        "38.2": [],
+        "50": [],
+        "61.8": []
+    }
 
-        resultados = {
-            "38.2": 0,
-            "50": 0,
-            "61.8": 0
-        }
+    for i in range(120, len(df) - 20):
 
-        total_382 = 0
-        total_50 = 0
-        total_618 = 0
+        trecho = df.iloc[i-60:i]
 
-        janela = 30
+        topo = trecho["High"].max()
 
-        for i in range(120, len(df) - 20):
+        fundo = trecho["Low"].min()
 
-            trecho = df.iloc[i-60:i]
+        if fundo <= 0:
+            continue
 
-            topo = trecho["High"].max()
-            fundo = trecho["Low"].min()
+        impulso = (topo - fundo) / fundo
 
-            if fundo <= 0:
-                continue
+        if impulso < 0.08:
+            continue
 
-            impulso = (topo - fundo) / fundo
+        diff = topo - fundo
 
-            if impulso < 0.08:
-                continue
+        fib_382 = topo - (diff * 0.382)
 
-            diff = topo - fundo
+        fib_50 = topo - (diff * 0.5)
 
-            fib_382 = topo - (diff * 0.382)
-            fib_50 = topo - (diff * 0.5)
-            fib_618 = topo - (diff * 0.618)
+        fib_618 = topo - (diff * 0.618)
 
-            preco = df.iloc[i]["Close"]
+        preco = df.iloc[i]["Close"]
 
-            futuro = df.iloc[i:i+15]
+        futuro = df.iloc[i:i+15]
 
-            max_futuro = futuro["High"].max()
+        ganho_max = (
+            futuro["High"].max() - preco
+        ) / preco
 
-            ganho = (
-                (max_futuro - preco)
-                /
-                preco
+        # ============================================
+        # FIB 38.2
+        # ============================================
+
+        if abs(preco - fib_382) / fib_382 <= 0.01:
+
+            resultados["38.2"].append(
+                ganho_max >= 0.05
             )
 
-            # =================================================
-            # FIB 38.2
-            # =================================================
+        # ============================================
+        # FIB 50
+        # ============================================
 
-            if abs(preco - fib_382) / fib_382 <= 0.01:
+        if abs(preco - fib_50) / fib_50 <= 0.01:
 
-                total_382 += 1
+            resultados["50"].append(
+                ganho_max >= 0.05
+            )
 
-                if ganho >= 0.05:
-                    resultados["38.2"] += 1
+        # ============================================
+        # FIB 61.8
+        # ============================================
 
-            # =================================================
-            # FIB 50
-            # =================================================
+        if abs(preco - fib_618) / fib_618 <= 0.01:
 
-            if abs(preco - fib_50) / fib_50 <= 0.01:
+            resultados["61.8"].append(
+                ganho_max >= 0.05
+            )
 
-                total_50 += 1
+    probabilidades = {}
 
-                if ganho >= 0.05:
-                    resultados["50"] += 1
+    for fib in resultados:
 
-            # =================================================
-            # FIB 61.8
-            # =================================================
+        dados = resultados[fib]
 
-            if abs(preco - fib_618) / fib_618 <= 0.01:
+        if len(dados) > 0:
 
-                total_618 += 1
-
-                if ganho >= 0.05:
-                    resultados["61.8"] += 1
-
-        probabilidades = {}
-
-        probabilidades["38.2"] = (
-            round(
-                (resultados["38.2"] / total_382) * 100,
+            probabilidades[fib] = round(
+                (
+                    sum(dados)
+                    /
+                    len(dados)
+                ) * 100,
                 1
             )
-            if total_382 > 0
-            else 0
-        )
 
-        probabilidades["50"] = (
-            round(
-                (resultados["50"] / total_50) * 100,
-                1
-            )
-            if total_50 > 0
-            else 0
-        )
+        else:
 
-        probabilidades["61.8"] = (
-            round(
-                (resultados["61.8"] / total_618) * 100,
-                1
-            )
-            if total_618 > 0
-            else 0
-        )
+            probabilidades[fib] = 0
 
-        melhor_fib = max(
-            probabilidades,
-            key=probabilidades.get
-        )
+    melhor_fib = max(
+        probabilidades,
+        key=probabilidades.get
+    )
 
-        melhor_prob = probabilidades[melhor_fib]
+    return melhor_fib, probabilidades
 
-        return melhor_fib, melhor_prob
 
-    except:
+# =========================================================
+# PROBABILIDADE DE CONTINUAR CORREÇÃO
+# =========================================================
 
-        return "-", 0
+def chance_continuar_correcao(
+    close,
+    fib_382,
+    fib_50,
+    fib_618,
+    hoje
+):
+
+    score = 0
+
+    # ============================================
+    # PREÇO AINDA LONGE DA 61.8
+    # ============================================
+
+    if close > fib_50:
+
+        score += 30
+
+    # ============================================
+    # ESTOCÁSTICO AINDA CAINDO
+    # ============================================
+
+    if hoje["K"] < hoje["D"]:
+
+        score += 25
+
+    # ============================================
+    # DMI VENDEDOR
+    # ============================================
+
+    if hoje["DI-"] > hoje["DI+"]:
+
+        score += 25
+
+    # ============================================
+    # ADX FORTE
+    # ============================================
+
+    if hoje["ADX"] > 20:
+
+        score += 10
+
+    # ============================================
+    # DISTÂNCIA DA 61.8
+    # ============================================
+
+    dist_618 = abs(close - fib_618) / close
+
+    if dist_618 > 0.03:
+
+        score += 10
+
+    return min(score, 95)
+
+
+# =========================================================
+# CHANCE DE REVERSÃO AGORA
+# =========================================================
+
+def chance_reversao_agora(
+    close,
+    fib_382,
+    fib_50,
+    fib_618,
+    hoje
+):
+
+    score = 0
+
+    # ============================================
+    # PREÇO PRÓXIMO DA 61.8
+    # ============================================
+
+    dist = abs(close - fib_618) / close
+
+    if dist <= 0.015:
+
+        score += 35
+
+    elif dist <= 0.03:
+
+        score += 20
+
+    # ============================================
+    # ESTOCÁSTICO COMPRADOR
+    # ============================================
+
+    if hoje["K"] > hoje["D"]:
+
+        score += 25
+
+    # ============================================
+    # DMI COMPRADOR
+    # ============================================
+
+    if hoje["DI+"] > hoje["DI-"]:
+
+        score += 25
+
+    # ============================================
+    # ADX
+    # ============================================
+
+    if hoje["ADX"] > 16:
+
+        score += 15
+
+    return min(score, 95)
+
+
+# =========================================================
+# CLASSIFICAÇÃO
+# =========================================================
+
+def classificar(
+    reversao,
+    continuacao
+):
+
+    if reversao >= 70:
+
+        return "🔥 ENTRADA IDEAL"
+
+    elif reversao >= 55:
+
+        return "🟢 ENTRADA ANTECIPADA"
+
+    elif continuacao >= 65:
+
+        return "⏳ ESPERAR CORREÇÃO"
+
+    else:
+
+        return "🟡 OBSERVAÇÃO"
 
 
 # =========================================================
@@ -268,9 +526,9 @@ def analisar_ativo(ticker):
 
     try:
 
-        # =====================================================
+        # ============================================
         # DOWNLOAD
-        # =====================================================
+        # ============================================
 
         df = yf.download(
             ticker,
@@ -280,32 +538,42 @@ def analisar_ativo(ticker):
             progress=False
         )
 
-        # =====================================================
+        # ============================================
         # MULTIINDEX
-        # =====================================================
+        # ============================================
 
         if isinstance(df.columns, pd.MultiIndex):
 
             df.columns = df.columns.get_level_values(0)
 
-        # =====================================================
+        # ============================================
         # LIMPEZA
-        # =====================================================
+        # ============================================
 
         df = df[
-            ["Open", "High", "Low", "Close", "Volume"]
+            [
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume"
+            ]
         ].copy()
 
         df.dropna(inplace=True)
 
         if len(df) < 250:
+
             return None
 
-        # =====================================================
+        # ============================================
         # INDICADORES
-        # =====================================================
+        # ============================================
 
-        df["EMA69"] = ema(df["Close"], 69)
+        df["EMA69"] = ema(
+            df["Close"],
+            69
+        )
 
         df["K"], df["D"] = stochastic(df)
 
@@ -313,94 +581,101 @@ def analisar_ativo(ticker):
 
         df.dropna(inplace=True)
 
-        if len(df) < 100:
-            return None
+        # ============================================
+        # FIBS
+        # ============================================
 
-        # =====================================================
-        # FIBONACCI
-        # =====================================================
+        fib_382, fib_50, fib_618 = calcular_fibs(df)
 
-        topo, fundo, fib_382, fib_50, fib_618 = (
-            calcular_fibonacci(df)
-        )
+        # ============================================
+        # MELHOR FIB
+        # ============================================
 
-        # =====================================================
-        # PROBABILIDADE
-        # =====================================================
+        melhor_fib, probs = melhor_fib_historica(df)
 
-        melhor_fib, melhor_prob = (
-            calcular_probabilidade_fib(df)
-        )
-
-        # =====================================================
-        # CANDLE
-        # =====================================================
+        # ============================================
+        # PREÇO
+        # ============================================
 
         hoje = df.iloc[-1]
 
         close = float(hoje["Close"])
 
-        # =====================================================
-        # FILTROS
-        # =====================================================
+        # ============================================
+        # SCORE CLÁSSICO
+        # ============================================
 
-        tendencia = (
-            close > hoje["EMA69"]
-        )
+        score = 0
 
-        fib_ok = (
+        if close > hoje["EMA69"]:
+            score += 1
+
+        if hoje["DI+"] > hoje["DI-"]:
+            score += 1
+
+        if hoje["ADX"] > 16:
+            score += 1
+
+        if hoje["K"] > hoje["D"]:
+            score += 1
+
+        if (
             close <= fib_382
             and
             close >= fib_618
+        ):
+            score += 1
+
+        # ============================================
+        # PROBABILIDADES
+        # ============================================
+
+        continuacao = chance_continuar_correcao(
+            close,
+            fib_382,
+            fib_50,
+            fib_618,
+            hoje
         )
 
-        dmi_ok = (
-            hoje["DI+"] > hoje["DI-"]
+        reversao = chance_reversao_agora(
+            close,
+            fib_382,
+            fib_50,
+            fib_618,
+            hoje
         )
 
-        adx_ok = (
-            hoje["ADX"] > 16
-        )
-
-        estocastico_ok = (
-            hoje["K"] > hoje["D"]
-        )
-
-        # =====================================================
-        # SCORE
-        # =====================================================
-
-        score = sum([
-            tendencia,
-            fib_ok,
-            dmi_ok,
-            adx_ok,
-            estocastico_ok
-        ])
-
-        # =====================================================
+        # ============================================
         # STATUS
-        # =====================================================
+        # ============================================
 
-        if score >= 5:
+        status = classificar(
+            reversao,
+            continuacao
+        )
 
-            status = "🔥 ENTRADA IDEAL"
+        # ============================================
+        # FIB ATUAL
+        # ============================================
 
-        elif score >= 4:
+        fib_atual = "-"
 
-            status = "🟢 ENTRADA ANTECIPADA"
+        if close >= fib_382:
 
-        elif score >= 3:
+            fib_atual = "38.2"
 
-            status = "🟡 OBSERVAÇÃO"
+        elif close >= fib_50:
 
-        else:
+            fib_atual = "50"
 
-            status = "❌ DESCARTAR"
+        elif close >= fib_618:
 
-        # =====================================================
+            fib_atual = "61.8"
+
+        # ============================================
         # RESULTADO
-        # =====================================================
+        # ============================================
 
         return {
 
@@ -408,13 +683,23 @@ def analisar_ativo(ticker):
 
             "Status": status,
 
-            "Score": score,
-
             "Preço": round(close, 2),
+
+            "Fib Atual": fib_atual,
 
             "Melhor Fib": melhor_fib,
 
-            "Probabilidade %": melhor_prob,
+            "Prob 38.2": probs["38.2"],
+
+            "Prob 50": probs["50"],
+
+            "Prob 61.8": probs["61.8"],
+
+            "Chance Reversão Agora %": reversao,
+
+            "Chance Continuar Correção %": continuacao,
+
+            "Score": score,
 
             "ADX": round(float(hoje["ADX"]), 1),
 
@@ -440,27 +725,22 @@ def analisar_ativo(ticker):
 
 
 # =========================================================
-# TÍTULO
+# APP
 # =========================================================
 
-st.title("📈 Scanner Fibonacci Probabilístico PRO")
+st.title(
+    "📈 Scanner Fibonacci Inteligente PRO"
+)
 
 st.markdown("""
 
-### O scanner utiliza:
+### O app agora calcula:
 
-- EMA69
-- Fibonacci
-- DMI
-- ADX
-- Estocástico
-- Estatística histórica
-
-### NOVA FUNÇÃO:
-
-Agora o app calcula:
-- qual Fibonacci historicamente funciona melhor;
-- probabilidade estatística de reação.
+- Melhor Fibonacci histórica;
+- Chance de reversão AGORA;
+- Chance de continuar corrigindo;
+- Região atual da correção;
+- Probabilidades individuais por Fibonacci.
 
 """)
 
@@ -481,13 +761,16 @@ if st.button("ESCANEAR MERCADO"):
         resultado = analisar_ativo(ativo)
 
         if resultado:
+
             resultados.append(resultado)
 
-        progresso.progress((i + 1) / total)
+        progresso.progress(
+            (i + 1) / total
+        )
 
-    # =====================================================
+    # ================================================
     # RESULTADOS
-    # =====================================================
+    # ================================================
 
     if resultados:
 
@@ -497,8 +780,8 @@ if st.button("ESCANEAR MERCADO"):
 
             "🔥 ENTRADA IDEAL": 0,
             "🟢 ENTRADA ANTECIPADA": 1,
-            "🟡 OBSERVAÇÃO": 2,
-            "❌ DESCARTAR": 3
+            "⏳ ESPERAR CORREÇÃO": 2,
+            "🟡 OBSERVAÇÃO": 3
 
         }
 
@@ -509,7 +792,7 @@ if st.button("ESCANEAR MERCADO"):
         df_resultados = df_resultados.sort_values(
             by=[
                 "Ordem",
-                "Probabilidade %",
+                "Chance Reversão Agora %",
                 "Score"
             ],
             ascending=[True, False, False]
@@ -520,28 +803,15 @@ if st.button("ESCANEAR MERCADO"):
             inplace=True
         )
 
-        mostrar_descartados = st.checkbox(
-            "Mostrar descartados",
-            value=False
-        )
-
-        if not mostrar_descartados:
-
-            df_resultados = df_resultados[
-                df_resultados["Status"]
-                !=
-                "❌ DESCARTAR"
-            ]
-
         st.dataframe(
             df_resultados,
             use_container_width=True,
-            height=700
+            height=750
         )
 
-        # =================================================
+        # ============================================
         # RESUMO
-        # =================================================
+        # ============================================
 
         ideal = len(
             df_resultados[
@@ -559,11 +829,11 @@ if st.button("ESCANEAR MERCADO"):
             ]
         )
 
-        observacao = len(
+        esperar = len(
             df_resultados[
                 df_resultados["Status"]
                 ==
-                "🟡 OBSERVAÇÃO"
+                "⏳ ESPERAR CORREÇÃO"
             ]
         )
 
@@ -580,14 +850,14 @@ if st.button("ESCANEAR MERCADO"):
         )
 
         col3.metric(
-            "🟡 Observação",
-            observacao
+            "⏳ Esperar Correção",
+            esperar
         )
 
     else:
 
         st.error(
-            "Nenhum resultado encontrado."
+            "Nenhum ativo encontrado."
         )
 
 # =========================================================
@@ -597,5 +867,5 @@ if st.button("ESCANEAR MERCADO"):
 st.markdown("---")
 
 st.caption(
-    "Scanner Fibonacci Probabilístico PRO"
+    "Scanner Fibonacci Inteligente PRO"
 )
