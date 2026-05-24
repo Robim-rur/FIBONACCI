@@ -22,7 +22,7 @@ st.markdown("""
 <style>
 
 /* =====================================================
-SCROLLBARS
+SCROLL GERAL
 ===================================================== */
 
 ::-webkit-scrollbar {
@@ -44,18 +44,32 @@ HEADER FIXO
 ===================================================== */
 
 thead tr th {
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
     background-color: #0e1117 !important;
 }
 
 /* =====================================================
-REMOVE BARRA HORIZONTAL NATIVA
+SCROLL SUPERIOR
 ===================================================== */
 
-[data-testid="stDataFrame"] div[style*="overflow"]::-webkit-scrollbar-horizontal {
-    height: 0px !important;
+.top-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 18px;
+    margin-bottom: 6px;
+    background: #0e1117;
+    border-radius: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.top-scroll-content {
+    height: 1px;
+    width: 5000px;
 }
 
 /* =====================================================
@@ -63,28 +77,15 @@ CORRIGE SOBREPOSIÇÃO
 ===================================================== */
 
 [data-testid="stDataFrame"] {
-    padding-bottom: 25px;
+    padding-bottom: 10px;
 }
 
 /* =====================================================
-SCROLL SUPERIOR
+REMOVE BARRA DUPLICADA
 ===================================================== */
 
-.top-scroll-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: 18px;
-    margin-bottom: 5px;
-    background-color: #0e1117;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-}
-
-.top-scroll-inner {
-    width: 3500px;
-    height: 1px;
+[data-testid="stDataFrame"] div[style*="overflow: auto"]::-webkit-scrollbar-horizontal {
+    height: 10px;
 }
 
 </style>
@@ -496,7 +497,7 @@ def chance_reversao(
     return min(score, 95)
 
 # =========================================================
-# CONTINUAÇÃO DA CORREÇÃO
+# CONTINUAÇÃO
 # =========================================================
 
 def chance_continuacao(
@@ -677,45 +678,25 @@ def analisar_ativo(ticker):
         return {
 
             "Ativo": ticker.replace(".SA", ""),
-
             "Status": status,
-
             "Preço": round(close, 2),
-
             "Fib Atual": fib_atual,
-
             "Melhor Fib": melhor_fib,
-
             "Chance Reversão %": reversao,
-
             "Chance Continuar Correção %": continuacao,
-
             "Potencial Alta": potencial,
-
             "Espaço Alta %": espaco,
-
             "Prob 38.2": probs["38.2"],
-
             "Prob 50": probs["50"],
-
             "Prob 61.8": probs["61.8"],
-
             "Score": score,
-
             "ADX": round(float(hoje["ADX"]), 1),
-
             "DI+": round(float(hoje["DI+"]), 1),
-
             "DI-": round(float(hoje["DI-"]), 1),
-
             "K": round(float(hoje["K"]), 1),
-
             "D": round(float(hoje["D"]), 1),
-
             "Fib 38.2": round(float(fib_382), 2),
-
             "Fib 50": round(float(fib_50), 2),
-
             "Fib 61.8": round(float(fib_618), 2)
 
         }
@@ -797,10 +778,6 @@ if st.button("ESCANEAR MERCADO"):
             inplace=True
         )
 
-        # =================================================
-        # FILTRO
-        # =================================================
-
         mostrar_observacao = st.checkbox(
             "Mostrar observação",
             value=True
@@ -820,70 +797,91 @@ if st.button("ESCANEAR MERCADO"):
 
         st.markdown("""
         <div
-            class="top-scroll-wrapper"
-            id="top-scroll-wrapper"
+            class="top-scroll-container"
+            id="top-scroll-container"
         >
             <div
-                class="top-scroll-inner"
+                class="top-scroll-content"
+                id="top-scroll-content"
             ></div>
         </div>
 
         <script>
 
-        function conectarScrolls() {
+        function conectarScrollSuperior() {
 
             const topScroll =
                 window.parent.document.getElementById(
-                    "top-scroll-wrapper"
+                    "top-scroll-container"
                 );
 
-            const tabelas =
+            const dataframes =
                 window.parent.document.querySelectorAll(
-                    '[data-testid="stDataFrame"] div[style*="overflow"]'
+                    '[data-testid="stDataFrame"]'
                 );
 
             if (
                 !topScroll ||
-                tabelas.length === 0
+                dataframes.length === 0
             ) {
                 return;
             }
 
-            const tabela =
-                tabelas[tabelas.length - 1];
+            const dataframe =
+                dataframes[
+                    dataframes.length - 1
+                ];
 
-            tabela.style.overflowX = "auto";
+            const scrollArea =
+                dataframe.querySelector(
+                    'div[style*="overflow: auto"]'
+                );
 
-            // ============================================
-            // SCROLL SUPERIOR -> TABELA
-            // ============================================
+            if (!scrollArea) {
+                return;
+            }
+
+            const largura =
+                scrollArea.scrollWidth;
+
+            const content =
+                window.parent.document.getElementById(
+                    "top-scroll-content"
+                );
+
+            content.style.width =
+                largura + "px";
+
+            // =====================================
+            // SUPERIOR -> TABELA
+            // =====================================
 
             topScroll.addEventListener(
                 "scroll",
                 () => {
 
-                    tabela.scrollLeft =
+                    scrollArea.scrollLeft =
                         topScroll.scrollLeft;
                 }
             );
 
-            // ============================================
-            // TABELA -> SCROLL SUPERIOR
-            // ============================================
+            // =====================================
+            // TABELA -> SUPERIOR
+            // =====================================
 
-            tabela.addEventListener(
+            scrollArea.addEventListener(
                 "scroll",
                 () => {
 
                     topScroll.scrollLeft =
-                        tabela.scrollLeft;
+                        scrollArea.scrollLeft;
                 }
             );
         }
 
         setTimeout(
-            conectarScrolls,
-            1200
+            conectarScrollSuperior,
+            2000
         );
 
         </script>
