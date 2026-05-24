@@ -6,7 +6,7 @@ import numpy as np
 import yfinance as yf
 
 # =========================================================
-# CONFIG
+# CONFIGURAÇÃO DA PÁGINA
 # =========================================================
 
 st.set_page_config(
@@ -15,19 +15,23 @@ st.set_page_config(
 )
 
 # =========================================================
-# CSS
+# CSS GLOBAL
 # =========================================================
 
 st.markdown("""
 <style>
 
 /* =====================================================
-SCROLLBAR GERAL
+SCROLLBARS
 ===================================================== */
 
 ::-webkit-scrollbar {
-    height: 12px;
     width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e1e;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -35,27 +39,31 @@ SCROLLBAR GERAL
     border-radius: 10px;
 }
 
-::-webkit-scrollbar-track {
-    background: #222;
-}
-
 /* =====================================================
-CABEÇALHO FIXO
+HEADER FIXO
 ===================================================== */
 
 thead tr th {
     position: sticky;
     top: 0;
+    z-index: 5;
     background-color: #0e1117 !important;
-    z-index: 10;
 }
 
 /* =====================================================
-REMOVE SCROLL HORIZONTAL ORIGINAL
+REMOVE BARRA HORIZONTAL NATIVA
 ===================================================== */
 
-[data-testid="stDataFrame"] div[style*="overflow: auto"] {
-    overflow-x: hidden !important;
+[data-testid="stDataFrame"] div[style*="overflow"]::-webkit-scrollbar-horizontal {
+    height: 0px !important;
+}
+
+/* =====================================================
+CORRIGE SOBREPOSIÇÃO
+===================================================== */
+
+[data-testid="stDataFrame"] {
+    padding-bottom: 25px;
 }
 
 /* =====================================================
@@ -67,11 +75,15 @@ SCROLL SUPERIOR
     overflow-x: auto;
     overflow-y: hidden;
     height: 18px;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
+    background-color: #0e1117;
+    position: sticky;
+    top: 0;
+    z-index: 999;
 }
 
 .top-scroll-inner {
-    width: 2600px;
+    width: 3500px;
     height: 1px;
 }
 
@@ -79,48 +91,157 @@ SCROLL SUPERIOR
 """, unsafe_allow_html=True)
 
 # =========================================================
-# ATIVOS
+# LISTA DE ATIVOS
 # =========================================================
 
 ATIVOS = [
 
-    "PETR4.SA","VALE3.SA","BBAS3.SA","ITUB4.SA","BBDC4.SA","WEGE3.SA","PRIO3.SA","RENT3.SA",
+    # =====================================================
+    # AÇÕES
+    # =====================================================
 
-    "ELET3.SA","ELET6.SA","CPLE6.SA","CMIG4.SA","TAEE11.SA","EGIE3.SA","VIVT3.SA","TIMS3.SA",
+    "PETR4.SA",
+    "VALE3.SA",
+    "BBAS3.SA",
+    "ITUB4.SA",
+    "BBDC4.SA",
+    "WEGE3.SA",
+    "PRIO3.SA",
+    "RENT3.SA",
 
-    "ABEV3.SA","RADL3.SA","SUZB3.SA","GGBR4.SA","GOAU4.SA","USIM5.SA","CSNA3.SA","RAIL3.SA",
+    "ELET3.SA",
+    "ELET6.SA",
+    "CPLE6.SA",
+    "CMIG4.SA",
+    "TAEE11.SA",
+    "EGIE3.SA",
+    "VIVT3.SA",
+    "TIMS3.SA",
 
-    "SBSP3.SA","EQTL3.SA","HYPE3.SA","MULT3.SA","LREN3.SA","ARZZ3.SA","TOTS3.SA","EMBR3.SA",
+    "ABEV3.SA",
+    "RADL3.SA",
+    "SUZB3.SA",
+    "GGBR4.SA",
+    "GOAU4.SA",
+    "USIM5.SA",
+    "CSNA3.SA",
+    "RAIL3.SA",
 
-    "JBSS3.SA","BEEF3.SA","MRFG3.SA","BRFS3.SA","SLCE3.SA","SMTO3.SA","B3SA3.SA","BBSE3.SA",
+    "SBSP3.SA",
+    "EQTL3.SA",
+    "HYPE3.SA",
+    "MULT3.SA",
+    "LREN3.SA",
+    "ARZZ3.SA",
+    "TOTS3.SA",
+    "EMBR3.SA",
 
-    "BPAC11.SA","SANB11.SA","ITSA4.SA","BRSR6.SA","CXSE3.SA","POMO4.SA","STBP3.SA","TUPY3.SA",
+    "JBSS3.SA",
+    "BEEF3.SA",
+    "MRFG3.SA",
+    "BRFS3.SA",
+    "SLCE3.SA",
+    "SMTO3.SA",
+    "B3SA3.SA",
+    "BBSE3.SA",
 
-    "DIRR3.SA","CYRE3.SA","EZTC3.SA","JHSF3.SA","KEPL3.SA","POSI3.SA","MOVI3.SA","PETZ3.SA",
+    "BPAC11.SA",
+    "SANB11.SA",
+    "ITSA4.SA",
+    "BRSR6.SA",
+    "CXSE3.SA",
+    "POMO4.SA",
+    "STBP3.SA",
+    "TUPY3.SA",
 
-    "COGN3.SA","YDUQ3.SA","MGLU3.SA","NTCO3.SA","AZUL4.SA","GOLL4.SA","CVCB3.SA","RRRP3.SA",
+    "DIRR3.SA",
+    "CYRE3.SA",
+    "EZTC3.SA",
+    "JHSF3.SA",
+    "KEPL3.SA",
+    "POSI3.SA",
+    "MOVI3.SA",
+    "PETZ3.SA",
 
-    "RECV3.SA","ENAT3.SA","ORVR3.SA","AURE3.SA","ENEV3.SA","UGPA3.SA",
+    "COGN3.SA",
+    "YDUQ3.SA",
+    "MGLU3.SA",
+    "NTCO3.SA",
+    "AZUL4.SA",
+    "GOLL4.SA",
+    "CVCB3.SA",
+    "RRRP3.SA",
 
+    "RECV3.SA",
+    "ENAT3.SA",
+    "ORVR3.SA",
+    "AURE3.SA",
+    "ENEV3.SA",
+    "UGPA3.SA",
+
+    # =====================================================
     # ETFs
+    # =====================================================
 
-    "BOVA11.SA","IVVB11.SA","SMAL11.SA","HASH11.SA","GOLD11.SA","DIVO11.SA","NDIV11.SA",
+    "BOVA11.SA",
+    "IVVB11.SA",
+    "SMAL11.SA",
+    "HASH11.SA",
+    "GOLD11.SA",
+    "DIVO11.SA",
+    "NDIV11.SA",
 
+    # =====================================================
     # FIIs
+    # =====================================================
 
-    "HGLG11.SA","XPLG11.SA","VISC11.SA","MXRF11.SA","KNRI11.SA","KNCR11.SA","KNIP11.SA",
+    "HGLG11.SA",
+    "XPLG11.SA",
+    "VISC11.SA",
+    "MXRF11.SA",
+    "KNRI11.SA",
+    "KNCR11.SA",
+    "KNIP11.SA",
 
-    "CPTS11.SA","IRDM11.SA","TRXF11.SA","TGAR11.SA","HGRU11.SA","ALZR11.SA","AUVP11.SA",
+    "CPTS11.SA",
+    "IRDM11.SA",
+    "TRXF11.SA",
+    "TGAR11.SA",
+    "HGRU11.SA",
+    "ALZR11.SA",
+    "AUVP11.SA",
 
-    "GARE11.SA","IEEX11.SA","UTLL11.SA",
+    "GARE11.SA",
+    "IEEX11.SA",
+    "UTLL11.SA",
 
+    # =====================================================
     # BDRs
+    # =====================================================
 
-    "AAPL34.SA","AMZO34.SA","GOGL34.SA","MSFT34.SA","TSLA34.SA","META34.SA","NFLX34.SA",
+    "AAPL34.SA",
+    "AMZO34.SA",
+    "GOGL34.SA",
+    "MSFT34.SA",
+    "TSLA34.SA",
+    "META34.SA",
+    "NFLX34.SA",
 
-    "NVDC34.SA","MELI34.SA","BABA34.SA","DISB34.SA","PYPL34.SA","JNJB34.SA","VISA34.SA",
+    "NVDC34.SA",
+    "MELI34.SA",
+    "BABA34.SA",
+    "DISB34.SA",
+    "PYPL34.SA",
+    "JNJB34.SA",
+    "VISA34.SA",
 
-    "WMTB34.SA","NIKE34.SA","ADBE34.SA","CSCO34.SA","INTC34.SA","JPMC34.SA","ORCL34.SA"
+    "WMTB34.SA",
+    "NIKE34.SA",
+    "ADBE34.SA",
+    "CSCO34.SA",
+    "INTC34.SA",
+    "JPMC34.SA",
+    "ORCL34.SA"
 ]
 
 # =========================================================
@@ -246,11 +367,8 @@ def melhor_fib_historica(df, ticker):
     }
 
     if "11.SA" in ticker:
-
         impulso_min = 0.04
-
     else:
-
         impulso_min = 0.08
 
     for i in range(120, len(df) - 20):
@@ -286,22 +404,13 @@ def melhor_fib_historica(df, ticker):
         ) / preco
 
         if abs(preco - fib_382) / fib_382 <= 0.01:
-
-            resultados["38.2"].append(
-                ganho_max >= 0.05
-            )
+            resultados["38.2"].append(ganho_max >= 0.05)
 
         if abs(preco - fib_50) / fib_50 <= 0.01:
-
-            resultados["50"].append(
-                ganho_max >= 0.05
-            )
+            resultados["50"].append(ganho_max >= 0.05)
 
         if abs(preco - fib_618) / fib_618 <= 0.01:
-
-            resultados["61.8"].append(
-                ganho_max >= 0.05
-            )
+            resultados["61.8"].append(ganho_max >= 0.05)
 
     probabilidades = {}
 
@@ -312,11 +421,7 @@ def melhor_fib_historica(df, ticker):
         if len(dados) > 0:
 
             probabilidades[fib] = round(
-                (
-                    sum(dados)
-                    /
-                    len(dados)
-                ) * 100,
+                (sum(dados) / len(dados)) * 100,
                 1
             )
 
@@ -343,19 +448,15 @@ def identificar_fib_atual(
 ):
 
     if close >= fib_382:
-
         return "38.2"
 
     elif close >= fib_50:
-
         return "50"
 
     elif close >= fib_618:
-
         return "61.8"
 
     else:
-
         return "ABAIXO 61.8"
 
 # =========================================================
@@ -374,18 +475,10 @@ def chance_reversao(
     if fib_atual == melhor_fib:
         score += 35
 
-    elif (
-        fib_atual == "50"
-        and
-        melhor_fib == "61.8"
-    ):
+    elif fib_atual == "50" and melhor_fib == "61.8":
         score += 15
 
-    elif (
-        fib_atual == "38.2"
-        and
-        melhor_fib == "50"
-    ):
+    elif fib_atual == "38.2" and melhor_fib == "50":
         score += 15
 
     if hoje["K"] > hoje["D"]:
@@ -403,7 +496,7 @@ def chance_reversao(
     return min(score, 95)
 
 # =========================================================
-# CONTINUAÇÃO
+# CONTINUAÇÃO DA CORREÇÃO
 # =========================================================
 
 def chance_continuacao(
@@ -414,25 +507,13 @@ def chance_continuacao(
 
     score = 0
 
-    if (
-        fib_atual == "38.2"
-        and
-        melhor_fib == "61.8"
-    ):
+    if fib_atual == "38.2" and melhor_fib == "61.8":
         score += 40
 
-    elif (
-        fib_atual == "50"
-        and
-        melhor_fib == "61.8"
-    ):
+    elif fib_atual == "50" and melhor_fib == "61.8":
         score += 30
 
-    elif (
-        fib_atual == "38.2"
-        and
-        melhor_fib == "50"
-    ):
+    elif fib_atual == "38.2" and melhor_fib == "50":
         score += 25
 
     if hoje["K"] < hoje["D"]:
@@ -463,15 +544,12 @@ def potencial_alta(
     espaco = round(espaco, 1)
 
     if espaco < 5:
-
         classificacao = "🔴 BAIXO"
 
     elif espaco < 10:
-
         classificacao = "🟡 MÉDIO"
 
     else:
-
         classificacao = "🔥 ALTO"
 
     return classificacao, espaco
@@ -486,28 +564,16 @@ def classificar(
     fib_atual
 ):
 
-    if (
-        reversao >= 70
-        and
-        fib_atual in ["50", "61.8"]
-    ):
-
+    if reversao >= 70 and fib_atual in ["50", "61.8"]:
         return "🔥 ENTRADA IDEAL"
 
-    elif (
-        reversao >= 55
-        and
-        fib_atual == "38.2"
-    ):
-
+    elif reversao >= 55 and fib_atual == "38.2":
         return "🟢 ENTRADA ANTECIPADA"
 
     elif continuacao >= 55:
-
         return "⏳ ESPERAR CORREÇÃO"
 
     else:
-
         return "🟡 OBSERVAÇÃO"
 
 # =========================================================
@@ -527,10 +593,7 @@ def analisar_ativo(ticker):
         )
 
         if isinstance(df.columns, pd.MultiIndex):
-
-            df.columns = (
-                df.columns.get_level_values(0)
-            )
+            df.columns = df.columns.get_level_values(0)
 
         df = df[
             [
@@ -547,10 +610,7 @@ def analisar_ativo(ticker):
         if len(df) < 250:
             return None
 
-        df["EMA69"] = ema(
-            df["Close"],
-            69
-        )
+        df["EMA69"] = ema(df["Close"], 69)
 
         df["K"], df["D"] = stochastic(df)
 
@@ -558,16 +618,9 @@ def analisar_ativo(ticker):
 
         df.dropna(inplace=True)
 
-        topo, fundo, fib_382, fib_50, fib_618 = (
-            calcular_fibs(df)
-        )
+        topo, fundo, fib_382, fib_50, fib_618 = calcular_fibs(df)
 
-        melhor_fib, probs = (
-            melhor_fib_historica(
-                df,
-                ticker
-            )
-        )
+        melhor_fib, probs = melhor_fib_historica(df, ticker)
 
         hoje = df.iloc[-1]
 
@@ -668,27 +721,25 @@ def analisar_ativo(ticker):
         }
 
     except:
-
         return None
 
 # =========================================================
-# APP
+# TÍTULO
 # =========================================================
 
-st.title(
-    "📈 Scanner Fibonacci Inteligente PRO"
-)
+st.title("📈 Scanner Fibonacci Inteligente PRO")
 
 st.markdown("""
 
 ### O scanner identifica:
 
-- Região atual da correção;
 - Melhor Fibonacci histórica;
+- Região atual da correção;
 - Chance de reversão;
 - Chance de continuar corrigindo;
 - Potencial de alta;
-- Espaço operacional.
+- Espaço operacional;
+- Probabilidade estatística histórica.
 
 """)
 
@@ -709,7 +760,6 @@ if st.button("ESCANEAR MERCADO"):
         resultado = analisar_ativo(ativo)
 
         if resultado:
-
             resultados.append(resultado)
 
         progresso.progress(
@@ -747,6 +797,10 @@ if st.button("ESCANEAR MERCADO"):
             inplace=True
         )
 
+        # =================================================
+        # FILTRO
+        # =================================================
+
         mostrar_observacao = st.checkbox(
             "Mostrar observação",
             value=True
@@ -776,7 +830,7 @@ if st.button("ESCANEAR MERCADO"):
 
         <script>
 
-        function conectarScrollSuperior() {
+        function conectarScrolls() {
 
             const topScroll =
                 window.parent.document.getElementById(
@@ -800,6 +854,10 @@ if st.button("ESCANEAR MERCADO"):
 
             tabela.style.overflowX = "auto";
 
+            // ============================================
+            // SCROLL SUPERIOR -> TABELA
+            // ============================================
+
             topScroll.addEventListener(
                 "scroll",
                 () => {
@@ -808,6 +866,10 @@ if st.button("ESCANEAR MERCADO"):
                         topScroll.scrollLeft;
                 }
             );
+
+            // ============================================
+            // TABELA -> SCROLL SUPERIOR
+            // ============================================
 
             tabela.addEventListener(
                 "scroll",
@@ -820,8 +882,8 @@ if st.button("ESCANEAR MERCADO"):
         }
 
         setTimeout(
-            conectarScrollSuperior,
-            1500
+            conectarScrolls,
+            1200
         );
 
         </script>
