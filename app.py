@@ -22,26 +22,7 @@ st.markdown("""
 <style>
 
 /* =====================================================
-SCROLL SUPERIOR E INFERIOR
-===================================================== */
-
-div[data-testid="stDataFrame"] > div {
-    overflow: auto !important;
-}
-
-/* =====================================================
-TABELA
-===================================================== */
-
-thead tr th {
-    position: sticky;
-    top: 0;
-    background-color: #0e1117;
-    z-index: 2;
-}
-
-/* =====================================================
-SCROLLBAR
+SCROLLBAR GERAL
 ===================================================== */
 
 ::-webkit-scrollbar {
@@ -58,6 +39,42 @@ SCROLLBAR
     background: #222;
 }
 
+/* =====================================================
+CABEÇALHO FIXO
+===================================================== */
+
+thead tr th {
+    position: sticky;
+    top: 0;
+    background-color: #0e1117 !important;
+    z-index: 10;
+}
+
+/* =====================================================
+REMOVE SCROLL HORIZONTAL ORIGINAL
+===================================================== */
+
+[data-testid="stDataFrame"] div[style*="overflow: auto"] {
+    overflow-x: hidden !important;
+}
+
+/* =====================================================
+SCROLL SUPERIOR
+===================================================== */
+
+.top-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 18px;
+    margin-bottom: 6px;
+}
+
+.top-scroll-inner {
+    width: 2600px;
+    height: 1px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -67,152 +84,43 @@ SCROLLBAR
 
 ATIVOS = [
 
-    # =====================================================
-    # AÇÕES
-    # =====================================================
+    "PETR4.SA","VALE3.SA","BBAS3.SA","ITUB4.SA","BBDC4.SA","WEGE3.SA","PRIO3.SA","RENT3.SA",
 
-    "PETR4.SA",
-    "VALE3.SA",
-    "BBAS3.SA",
-    "ITUB4.SA",
-    "BBDC4.SA",
-    "WEGE3.SA",
-    "PRIO3.SA",
-    "RENT3.SA",
+    "ELET3.SA","ELET6.SA","CPLE6.SA","CMIG4.SA","TAEE11.SA","EGIE3.SA","VIVT3.SA","TIMS3.SA",
 
-    "ELET3.SA",
-    "ELET6.SA",
-    "CPLE6.SA",
-    "CMIG4.SA",
-    "TAEE11.SA",
-    "EGIE3.SA",
-    "VIVT3.SA",
-    "TIMS3.SA",
+    "ABEV3.SA","RADL3.SA","SUZB3.SA","GGBR4.SA","GOAU4.SA","USIM5.SA","CSNA3.SA","RAIL3.SA",
 
-    "ABEV3.SA",
-    "RADL3.SA",
-    "SUZB3.SA",
-    "GGBR4.SA",
-    "GOAU4.SA",
-    "USIM5.SA",
-    "CSNA3.SA",
-    "RAIL3.SA",
+    "SBSP3.SA","EQTL3.SA","HYPE3.SA","MULT3.SA","LREN3.SA","ARZZ3.SA","TOTS3.SA","EMBR3.SA",
 
-    "SBSP3.SA",
-    "EQTL3.SA",
-    "HYPE3.SA",
-    "MULT3.SA",
-    "LREN3.SA",
-    "ARZZ3.SA",
-    "TOTS3.SA",
-    "EMBR3.SA",
+    "JBSS3.SA","BEEF3.SA","MRFG3.SA","BRFS3.SA","SLCE3.SA","SMTO3.SA","B3SA3.SA","BBSE3.SA",
 
-    "JBSS3.SA",
-    "BEEF3.SA",
-    "MRFG3.SA",
-    "BRFS3.SA",
-    "SLCE3.SA",
-    "SMTO3.SA",
-    "B3SA3.SA",
-    "BBSE3.SA",
+    "BPAC11.SA","SANB11.SA","ITSA4.SA","BRSR6.SA","CXSE3.SA","POMO4.SA","STBP3.SA","TUPY3.SA",
 
-    "BPAC11.SA",
-    "SANB11.SA",
-    "ITSA4.SA",
-    "BRSR6.SA",
-    "CXSE3.SA",
-    "POMO4.SA",
-    "STBP3.SA",
-    "TUPY3.SA",
+    "DIRR3.SA","CYRE3.SA","EZTC3.SA","JHSF3.SA","KEPL3.SA","POSI3.SA","MOVI3.SA","PETZ3.SA",
 
-    "DIRR3.SA",
-    "CYRE3.SA",
-    "EZTC3.SA",
-    "JHSF3.SA",
-    "KEPL3.SA",
-    "POSI3.SA",
-    "MOVI3.SA",
-    "PETZ3.SA",
+    "COGN3.SA","YDUQ3.SA","MGLU3.SA","NTCO3.SA","AZUL4.SA","GOLL4.SA","CVCB3.SA","RRRP3.SA",
 
-    "COGN3.SA",
-    "YDUQ3.SA",
-    "MGLU3.SA",
-    "NTCO3.SA",
-    "AZUL4.SA",
-    "GOLL4.SA",
-    "CVCB3.SA",
-    "RRRP3.SA",
+    "RECV3.SA","ENAT3.SA","ORVR3.SA","AURE3.SA","ENEV3.SA","UGPA3.SA",
 
-    "RECV3.SA",
-    "ENAT3.SA",
-    "ORVR3.SA",
-    "AURE3.SA",
-    "ENEV3.SA",
-    "UGPA3.SA",
-
-    # =====================================================
     # ETFs
-    # =====================================================
 
-    "BOVA11.SA",
-    "IVVB11.SA",
-    "SMAL11.SA",
-    "HASH11.SA",
-    "GOLD11.SA",
-    "DIVO11.SA",
-    "NDIV11.SA",
+    "BOVA11.SA","IVVB11.SA","SMAL11.SA","HASH11.SA","GOLD11.SA","DIVO11.SA","NDIV11.SA",
 
-    # =====================================================
     # FIIs
-    # =====================================================
 
-    "HGLG11.SA",
-    "XPLG11.SA",
-    "VISC11.SA",
-    "MXRF11.SA",
-    "KNRI11.SA",
-    "KNCR11.SA",
-    "KNIP11.SA",
+    "HGLG11.SA","XPLG11.SA","VISC11.SA","MXRF11.SA","KNRI11.SA","KNCR11.SA","KNIP11.SA",
 
-    "CPTS11.SA",
-    "IRDM11.SA",
-    "TRXF11.SA",
-    "TGAR11.SA",
-    "HGRU11.SA",
-    "ALZR11.SA",
-    "AUVP11.SA",
+    "CPTS11.SA","IRDM11.SA","TRXF11.SA","TGAR11.SA","HGRU11.SA","ALZR11.SA","AUVP11.SA",
 
-    "GARE11.SA",
-    "IEEX11.SA",
-    "UTLL11.SA",
+    "GARE11.SA","IEEX11.SA","UTLL11.SA",
 
-    # =====================================================
     # BDRs
-    # =====================================================
 
-    "AAPL34.SA",
-    "AMZO34.SA",
-    "GOGL34.SA",
-    "MSFT34.SA",
-    "TSLA34.SA",
-    "META34.SA",
-    "NFLX34.SA",
+    "AAPL34.SA","AMZO34.SA","GOGL34.SA","MSFT34.SA","TSLA34.SA","META34.SA","NFLX34.SA",
 
-    "NVDC34.SA",
-    "MELI34.SA",
-    "BABA34.SA",
-    "DISB34.SA",
-    "PYPL34.SA",
-    "JNJB34.SA",
-    "VISA34.SA",
+    "NVDC34.SA","MELI34.SA","BABA34.SA","DISB34.SA","PYPL34.SA","JNJB34.SA","VISA34.SA",
 
-    "WMTB34.SA",
-    "NIKE34.SA",
-    "ADBE34.SA",
-    "CSCO34.SA",
-    "INTC34.SA",
-    "JPMC34.SA",
-    "ORCL34.SA"
+    "WMTB34.SA","NIKE34.SA","ADBE34.SA","CSCO34.SA","INTC34.SA","JPMC34.SA","ORCL34.SA"
 ]
 
 # =========================================================
@@ -424,7 +332,7 @@ def melhor_fib_historica(df, ticker):
     return melhor_fib, probabilidades
 
 # =========================================================
-# IDENTIFICAR FIB ATUAL
+# FIB ATUAL
 # =========================================================
 
 def identificar_fib_atual(
@@ -464,7 +372,6 @@ def chance_reversao(
     score = 0
 
     if fib_atual == melhor_fib:
-
         score += 35
 
     elif (
@@ -472,7 +379,6 @@ def chance_reversao(
         and
         melhor_fib == "61.8"
     ):
-
         score += 15
 
     elif (
@@ -480,29 +386,24 @@ def chance_reversao(
         and
         melhor_fib == "50"
     ):
-
         score += 15
 
     if hoje["K"] > hoje["D"]:
-
         score += 20
 
     if hoje["DI+"] > hoje["DI-"]:
-
         score += 20
 
     if hoje["ADX"] > 18:
-
         score += 15
 
     if close > hoje["EMA69"]:
-
         score += 10
 
     return min(score, 95)
 
 # =========================================================
-# CONTINUAÇÃO CORREÇÃO
+# CONTINUAÇÃO
 # =========================================================
 
 def chance_continuacao(
@@ -518,7 +419,6 @@ def chance_continuacao(
         and
         melhor_fib == "61.8"
     ):
-
         score += 40
 
     elif (
@@ -526,7 +426,6 @@ def chance_continuacao(
         and
         melhor_fib == "61.8"
     ):
-
         score += 30
 
     elif (
@@ -534,25 +433,21 @@ def chance_continuacao(
         and
         melhor_fib == "50"
     ):
-
         score += 25
 
     if hoje["K"] < hoje["D"]:
-
         score += 20
 
     if hoje["DI-"] > hoje["DI+"]:
-
         score += 20
 
     if hoje["ADX"] > 20:
-
         score += 10
 
     return min(score, 95)
 
 # =========================================================
-# POTENCIAL ALTA
+# POTENCIAL
 # =========================================================
 
 def potencial_alta(
@@ -650,7 +545,6 @@ def analisar_ativo(ticker):
         df.dropna(inplace=True)
 
         if len(df) < 250:
-
             return None
 
         df["EMA69"] = ema(
@@ -832,7 +726,6 @@ if st.button("ESCANEAR MERCADO"):
             "🟢 ENTRADA ANTECIPADA": 1,
             "⏳ ESPERAR CORREÇÃO": 2,
             "🟡 OBSERVAÇÃO": 3
-
         }
 
         df_resultados["Ordem"] = (
@@ -868,63 +761,71 @@ if st.button("ESCANEAR MERCADO"):
             ]
 
         # =================================================
-        # BARRA SUPERIOR
+        # SCROLL SUPERIOR FUNCIONAL
         # =================================================
 
-        scroll_html = """
-        <div id="top-scroll" style="
-            overflow-x: auto;
-            overflow-y: hidden;
-            width: 100%;
-            height: 20px;
-            margin-bottom: 4px;
-        ">
-            <div style="width: 2600px; height:1px;"></div>
+        st.markdown("""
+        <div
+            class="top-scroll-wrapper"
+            id="top-scroll-wrapper"
+        >
+            <div
+                class="top-scroll-inner"
+            ></div>
         </div>
 
         <script>
 
-        function conectarScroll() {
+        function conectarScrollSuperior() {
 
             const topScroll =
                 window.parent.document.getElementById(
-                    'top-scroll'
+                    "top-scroll-wrapper"
                 );
 
-            const tables =
+            const tabelas =
                 window.parent.document.querySelectorAll(
                     '[data-testid="stDataFrame"] div[style*="overflow"]'
                 );
 
-            if (tables.length > 0) {
-
-                const table =
-                    tables[tables.length - 1];
-
-                topScroll.onscroll = () => {
-                    table.scrollLeft =
-                        topScroll.scrollLeft;
-                };
-
-                table.onscroll = () => {
-                    topScroll.scrollLeft =
-                        table.scrollLeft;
-                };
+            if (
+                !topScroll ||
+                tabelas.length === 0
+            ) {
+                return;
             }
+
+            const tabela =
+                tabelas[tabelas.length - 1];
+
+            tabela.style.overflowX = "auto";
+
+            topScroll.addEventListener(
+                "scroll",
+                () => {
+
+                    tabela.scrollLeft =
+                        topScroll.scrollLeft;
+                }
+            );
+
+            tabela.addEventListener(
+                "scroll",
+                () => {
+
+                    topScroll.scrollLeft =
+                        tabela.scrollLeft;
+                }
+            );
         }
 
         setTimeout(
-            conectarScroll,
-            1000
+            conectarScrollSuperior,
+            1500
         );
 
         </script>
-        """
-
-        st.markdown(
-            scroll_html,
-            unsafe_allow_html=True
-        )
+        """, unsafe_allow_html=True)
 
         # =================================================
         # TABELA
